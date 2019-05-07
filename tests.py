@@ -12,6 +12,7 @@ from models.hyst_layer import HystLayer
 import utils.training as trainer
 import utils.plotting as myplt
 
+
 def aedat_input():
     # data = utils.converter.aedat2numpy("/Users/jf330/Desktop/Gesture/Bruno2_dvs.aedat")
     # np.save("/Users/jf330/data_bruno.npy", data)
@@ -59,7 +60,6 @@ def aedat_input():
 
 
 def cont_current_input():
-
     hyst_model = HystNeuron(pre_x=1, pre_y=1)
 
     T = 200
@@ -126,7 +126,6 @@ def synt_input(datamaker):
 
 
 def simple_input():
-
     hyst_model = HystNeuron(pre_x=1, pre_y=1, omega_rate=-1)
     T = 40
     data = np.zeros((1,T))
@@ -167,7 +166,6 @@ def simple_input():
 
 
 def simple_STDP_train():
-
     pre_1 = HystNeuron(pre_x=1, pre_y=1, omega_rate=-1)
     pre_2 = HystNeuron(pre_x=1, pre_y=1, omega_rate=-1)
     post = HystNeuron(pre_x=1, pre_y=1, omega_rate=-1)
@@ -214,6 +212,16 @@ def simple_STDP_train():
     plt.show()
 
 
+def synt_train_many(datamaker, iter):
+
+    params = np.linspace(0, 1, iter)
+
+    for i in params: # FIXME do tqdm progress bar
+        print("Eta: {}".format(i))
+        for j in params:
+            synt_input_train(datamaker, eta=i, a=j)
+
+
 def synt_input_train(datamaker, eta=-1, a=-1):
     # Training setup
     lr = 0.01
@@ -222,8 +230,8 @@ def synt_input_train(datamaker, eta=-1, a=-1):
     omega_rate = 0.15
     noise = False
 
-    # datamaker.feature_list = np.load("hyst_model/newest/feature_list_N_{}_fea_{}".format(datamaker.n, datamaker.n_fea)).item()
-    # np.save(datamaker.feature_list, "hyst_model/newest/feature_list_N_{}_fea_{}".format(datamaker.n, datamaker.n_fea))
+    # datamaker.feature_list = np.load("feature_list_N_{}_fea_{}".format(datamaker.n, datamaker.n_fea)).item()
+    np.save(datamaker.feature_list, "feature_list_N_{}_fea_{}".format(datamaker.n, datamaker.n_fea))
 
     if eta < 0 and a < 0:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
@@ -323,4 +331,4 @@ def synt_input_train(datamaker, eta=-1, a=-1):
     plt.show()
 
     ### Save trained weights
-    # np.save(neuron_A.weight_m, "weights_hyst_N_{}_Eta_{}_A_{}_RandInit_Integral_state".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a))
+    np.save(neuron_A.weight_m, "weights_N_{}_Eta_{}_A_{}".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a))

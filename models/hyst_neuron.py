@@ -3,7 +3,7 @@ import numpy as np
 
 class HystNeuron:
 
-    def __init__(self, h=1000, K=1, eta=0.95, a=0.2, b=0.2, omega_rate=0.02, pre_x=1, pre_y=1):
+    def __init__(self, h=1000, K=1, eta=0.95, a=0.3, b=0.3, omega_rate=0.02, pre_x=1, pre_y=1):
 
         ### ODEs parameters
         self.h = h
@@ -72,14 +72,14 @@ class HystNeuron:
         update_partition = np.rint((self.weight_m.__len__()) * to_update).astype(int)
 
         ### Correlation to post-syn output
-        # elig = []
-        # for i in range(0, len(self.weight_m)):
-        #     elig.append(np.array(data[:, i]) * np.array(output))
-
-        ### Correlation to error_trace
         elig = []
         for i in range(0, len(self.weight_m)):
-            elig.append(np.array(data[:, i]) * np.array(abs(error_trace)))
+            elig.append(np.array(data[:, i]) * np.array(output))
+
+        ### Correlation to error_trace
+        # elig = []
+        # for i in range(0, len(self.weight_m)):
+        #     elig.append(np.array(data[:, i]) * np.array(abs(error_trace)))
 
         elig_sum = np.sum(elig, axis=1)
         most_elig_syn = np.argpartition(elig_sum, -update_partition)[-update_partition:]

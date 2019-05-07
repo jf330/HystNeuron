@@ -11,7 +11,7 @@ def main(
 
     n = 200  # Number of neurons
     dt = 0.001  # Bin length (s)
-    duration = 0.5  # Trial duration background (s)
+    duration = 0.4  # Trial duration background (s)
     n_fea = 2  # Total number of features and distractors
     cf_mean = 2  # Mean number of occurrences for each feature
     T_fea = 0.05  # Base feature duration (s)

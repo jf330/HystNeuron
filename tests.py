@@ -225,15 +225,15 @@ def synt_train_many(datamaker, iter):
 
 def synt_input_train(datamaker, eta=-1, a=-1):
     # Training setup
-    lr = 0.01
-    to_update = 0.4
-    epochs = 2000
-    omega_rate = 0.15
-    noise = False
+    lr = 0.0005
+    to_update = 0.1
+    epochs = 12000
+    omega_rate = 0.1
+    noise = True
     cwd = os.path.dirname(__file__)
 
-    # datamaker.feature_list = np.load(cwd + "feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
-    np.save(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
+    datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
+    # np.save(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
 
     if eta < 0 and a < 0:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
@@ -333,4 +333,4 @@ def synt_input_train(datamaker, eta=-1, a=-1):
     plt.show()
 
     ### Save trained weights
-    np.save(neuron_A.weight_m, "weights_N_{}_Eta_{}_A_{}".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a))
+    np.save(cwd + "/weights_N_{}_Eta_{}_A_{}_noisy".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a), neuron_A.weight_m)

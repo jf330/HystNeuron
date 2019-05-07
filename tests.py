@@ -1,7 +1,7 @@
-import numpy
+import numpy as np
 import utils.converter
 import utils.training
-import autograd.numpy as np
+import autograd.numpy as npa
 from autograd import grad
 from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt

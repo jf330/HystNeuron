@@ -5,6 +5,7 @@ import autograd.numpy as npa
 from autograd import grad
 from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
+import os
 
 from models.hyst_neuron import HystNeuron
 from models.hyst_layer import HystLayer
@@ -216,7 +217,7 @@ def synt_train_many(datamaker, iter):
 
     params = np.linspace(0, 1, iter)
 
-    for i in params: # FIXME do tqdm progress bar
+    for i in params:  # FIXME do tqdm progress bar
         print("Eta: {}".format(i))
         for j in params:
             synt_input_train(datamaker, eta=i, a=j)
@@ -229,9 +230,10 @@ def synt_input_train(datamaker, eta=-1, a=-1):
     epochs = 2000
     omega_rate = 0.15
     noise = False
+    cwd = os.path.dirname(__file__)
 
-    # datamaker.feature_list = np.load("feature_list_N_{}_fea_{}".format(datamaker.n, datamaker.n_fea)).item()
-    np.save(datamaker.feature_list, "feature_list_N_{}_fea_{}".format(datamaker.n, datamaker.n_fea))
+    datamaker.feature_list = np.load(cwd + "feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
+    # np.save(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
 
     if eta < 0 and a < 0:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)

@@ -107,3 +107,6 @@ venv.bak/
 
 .idea/inspectionProfiles/
 venv/include/
+
+# Training files
+*feature_list*

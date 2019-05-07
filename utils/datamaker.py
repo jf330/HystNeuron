@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.patches as patches
 
+
 class Datamaker(object):
     def __init__(
             self,

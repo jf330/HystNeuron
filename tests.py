@@ -1,14 +1,16 @@
 import numpy
-from models.hyst_neuron import HystNeuron
-from models.hyst_layer import HystLayer
 import utils.converter
 import utils.training
 import autograd.numpy as np
 from autograd import grad
+from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
+
+from models.hyst_neuron import HystNeuron
+from models.hyst_layer import HystLayer
+
 import utils.training as trainer
 import utils.plotting as myplt
-
 
 def aedat_input():
     # data = utils.converter.aedat2numpy("/Users/jf330/Desktop/Gesture/Bruno2_dvs.aedat")
@@ -212,7 +214,7 @@ def simple_STDP_train():
     plt.show()
 
 
-def synt_input_train(datamaker):
+def synt_input_train(datamaker, eta=-1, a=-1):
     # Training setup
     lr = 0.01
     to_update = 0.4
@@ -223,7 +225,10 @@ def synt_input_train(datamaker):
     # datamaker.feature_list = np.load("hyst_model/newest/feature_list_N_{}_fea_{}".format(datamaker.n, datamaker.n_fea)).item()
     # np.save(datamaker.feature_list, "hyst_model/newest/feature_list_N_{}_fea_{}".format(datamaker.n, datamaker.n_fea))
 
-    neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
+    if eta < 0 and a < 0:
+        neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
+    else:
+        neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, eta=eta, a=a)
 
     neuron_A_error = []
     for e in range(0, epochs):

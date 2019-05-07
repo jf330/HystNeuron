@@ -69,7 +69,7 @@ class HystNeuron:
     def feedback_weight_update(self, output, data, error, error_trace, to_update=0.2, lr=0.001):
 
         ### Select top x% most eligible pre-syn neurons over whole input
-        update_partition = np.rint((self.weight_m.__len__() - 1) * to_update).astype(int)
+        update_partition = np.rint((self.weight_m.__len__()) * to_update).astype(int)
 
         ### Correlation to post-syn output
         # elig = []

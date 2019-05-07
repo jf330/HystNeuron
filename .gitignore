@@ -110,3 +110,4 @@ venv/include/
 
 # Training files
 *feature_list*
+*weights*

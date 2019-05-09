@@ -1,20 +1,20 @@
 import numpy as np
 
 
-def calc_hyst(self, input_data):
+def calc_hyst(input_data, decay):
     # Uniform out function based input
     hyst_data = []
     for bin in range(0, len(input_data[1])):
         input_slice = input_data[:, bin]
         if bin != 0:
-            hyst_data.append(input_slice + self.b * hyst_data[bin - 1])
+            hyst_data.append(input_slice + decay * hyst_data[bin - 1])
         else:
             hyst_data.append(input_slice)
 
     return np.array(hyst_data)
 
 
-def calc_integrals(threshold, target_state, state, fea_order, time_occur, datamaker):
+def calc_integrals_synt(threshold, target_state, state, fea_order, time_occur, datamaker):
 
     state = np.array(state)
     spikes = np.where(state >= threshold)[0].__len__()
@@ -42,10 +42,47 @@ def calc_integrals(threshold, target_state, state, fea_order, time_occur, datama
         index += np.rint(T_fea_local).astype(int)
         count += 1
 
-    error_trace[np.where(error_trace == 0)] = error_bg/50  # TODO should be normalized, too large error trace for background
+    error_trace[np.where(error_trace == 0)] = 0.2  # TODO should be normalized, too large error trace for background
     error = error + error_bg
 
     return error, error_trace
 
+def calc_error(threshold, desired, actual):
+    error = np.zeros((len(desired)))
+    target = 0
+    target_value = 0
+    pattern_on = False
+    for bin in range(0, len(desired)):
+        target = desired[bin]
+        if target != 0 and pattern_on == False:
+            pattern_on = True
+            target_index_start = bin
+            target_value = target
+        if (target == 0) and (target_value != 0):
+            target_index_end = bin - 1
 
+            range_len = target_index_end - target_index_start
+            segment = np.array(actual[target_index_start:target_index_end])
 
+            actual_spikes = np.where(segment >= threshold)[0].__len__()
+            error_value = actual_spikes - target_value
+
+            # actual_output = np.sum(segment[np.where(segment >= threshold)])
+            # error_value = actual_output - target_value
+
+            if error_value == 0:
+                error[target_index_start:target_index_end] = np.zeros((range_len)).tolist()
+            else:
+                error_range = np.ones((range_len)) * error_value
+                error[target_index_start:target_index_end] = error_range.tolist()
+
+            target_value = 0
+            pattern_on = False
+            # error[bin] = 0
+        if (target == 0) and (target_value == 0):
+            if actual[bin] >= threshold:
+                error[bin] = threshold
+            else:
+                error[bin] = 0
+
+    return error.tolist()

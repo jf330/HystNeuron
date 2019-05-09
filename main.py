@@ -9,10 +9,10 @@ def main(
 ):
     # with np.errstate(divide='ignore'): # Ignore overflow, divide by 0 etc. warning messages
 
-    n = 200  # Number of neurons
+    n = 300  # Number of neurons
     dt = 0.001  # Bin length (s)
-    duration = 0.4  # Trial duration background (s)
-    n_fea = 2  # Total number of features and distractors
+    duration = 0.2  # Trial duration background (s)
+    n_fea = 3  # Total number of features and distractors
     cf_mean = 2  # Mean number of occurrences for each feature
     T_fea = 0.05  # Base feature duration (s)
     fr = 5  # Background spiking frequency (Hz)
@@ -30,9 +30,9 @@ def main(
     elif test_type == "synt_train_many":
         datamaker = Datamaker(n, duration, dt, n_fea, cf_mean, T_fea, fr, random_seed, ["random", "random"])
         tests.synt_train_many(datamaker, iterations)
-    elif test_type == "synt_input_train":
+    elif test_type == "synt_train":
         datamaker = Datamaker(n, duration, dt, n_fea, cf_mean, T_fea, fr, random_seed, ["random", "random"])
-        tests.synt_input_train(datamaker)
+        tests.synt_train(datamaker)
 
 
 if __name__ == '__main__':

@@ -94,7 +94,7 @@ def read_events(file_read, x_dim, y_dim):
     return (np.array(x_addr_tot), np.array(y_addr_tot), np.array(pol_tot), np.array(ts_tot), np.array(spec_type_tot), np.array(spec_ts_tot))
 
 
-def aedat2numpy(datafile, length=0, version='V2', debug=0, camera='DAVIS240', unit='ms'):
+def aedat2numpy(datafile, length=0, version='V3', debug=0, camera='DVS128', unit='ms'):
     """Loads AER data file and parses these properties of AE events.
 
     Properties:
@@ -138,9 +138,9 @@ def aedat2numpy(datafile, length=0, version='V2', debug=0, camera='DAVIS240', un
             # The file version is AEDAT 2.0. Wrong version specified.
             raise ValueError(
                 "Wrong .aedat version specified. \n Please enter version = 'V2' ")
-        if (camera == 'DVS128'):
-            raise ValueError(
-                "Unsupported camera version. \n Please enter camera = 'DAVIS240'")
+        # if (camera == 'DVS128'):
+        #     raise ValueError(
+        #         "Unsupported camera version. \n Please enter camera = 'DAVIS240'")
 
         skip_header(aerdatafh)
 

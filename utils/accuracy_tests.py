@@ -3,9 +3,10 @@ from models.hyst_layer import  HystLayer
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def quality_test(datamaker, pre_syn):
     background = 100
-    epochs = 200
+    epochs = 100
 
     responses = [1,2]
     # responses = [1,2,3]
@@ -20,15 +21,15 @@ def quality_test(datamaker, pre_syn):
     # fea_3_correct = []
 
     # x_axis = [0]
-    x = np.linspace(0, 1, 6)
+    x = np.linspace(0, 1, 21)
     x_axis = x.tolist()
 
     for s in x_axis:
 
-        neuron_A = HystNeuron(pre_syn=pre_syn, eta=s)
+        neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s)
 
-        feature_list = np.load("hyst_model/newest/feature_list_N_{}_fea_{}_server_test3".format(pre_syn, datamaker.n_fea)).item()
-        neuron_A.in_weights = np.load("hyst_model/newest/weights_hyst_N_{}_S_{}_A_1_RandInit_Integral_state".format(pre_syn, round(s,1)))
+        feature_list = np.load("/Users/jf330/new_results/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
+        neuron_A.in_weights = np.load("/Users/jf330/new_results/HystNeuron/weights_N_{}_Eta_{}_A_0.5.npy".format(pre_syn, s))
 
         resp_dict = {}
         error_dict = {}
@@ -54,18 +55,15 @@ def quality_test(datamaker, pre_syn):
                     # print("Clock: {}, inputs: {}".format(bin, simul_events))
 
                     if simul_events.size != 0:
-                        neuron_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist())
+                        neuron_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(), values=np.ones(simul_events.__len__()).tolist())
                     out_A = neuron_A.decay_step()
 
                     neuron_A_out.append(out_A)
                     neuron_A_state.append(neuron_A.state)
 
                 actual_num_spikes = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__()
-                # actual_num_spikes = np.max(np.array(neuron_A_state))
 
                 fea_responses.append(actual_num_spikes)
-
-                # if actual_num_spikes >= desired_spikes and actual_num_spikes < desired_spikes+1:
                 if actual_num_spikes == desired_spikes:
                     fea_correct +=1
 
@@ -86,7 +84,7 @@ def quality_test(datamaker, pre_syn):
                     # print("Clock: {}, inputs: {}".format(bin, simul_events))
 
                     if simul_events.size != 0:
-                        neuron_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist())
+                        neuron_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(), values=np.ones(simul_events.__len__()).tolist())
                     out_A = neuron_A.decay_step()
 
                     neuron_A_out.append(out_A)
@@ -94,11 +92,10 @@ def quality_test(datamaker, pre_syn):
 
 
                 actual_num_spikes = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__()
-                # actual_num_spikes = np.max(np.array(neuron_A_state))
 
                 null_responses.append(actual_num_spikes)
 
-            print("Test for switch: {}".format(neuron_A.switch))
+            print("Test for Eta: {}".format(neuron_A.eta))
             # print("Null, {}: {} spikes".format(fea, sum(null_responses)))
             # print("Feature, {}: {} spikes".format(fea, sum(fea_responses)))
 
@@ -148,6 +145,8 @@ def quality_test(datamaker, pre_syn):
     plt.scatter(x_axis, acc, color="black")
     plt.show()
 
+    return acc
+
 
 def plot_accuracy(fea_null=[], fea_1=[], fea_2=[], fea_3=[]):
 
@@ -159,11 +158,11 @@ def plot_accuracy(fea_null=[], fea_1=[], fea_2=[], fea_3=[]):
 
     error_0 = abs(np.array(fea_null) - 0)
 
-    x = np.linspace(0, 1, 6)
+    x = np.linspace(0, 1, 21)
     x_axis = x.tolist()
 
     sum_error = []
-    for i in range(0, 6):
+    for i in range(0, 21):
         # sum_error.append(error_0[i] + error_1[i] + error_2[i] + error_3[i])
         sum_error.append(error_0[i] + error_1[i] + error_2[i])
 
@@ -188,3 +187,46 @@ def plot_accuracy(fea_null=[], fea_1=[], fea_2=[], fea_3=[]):
     plt.show()
 
     print(sum_error)
+
+
+def plot_heatmap(a, eta, results):
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(results)
+
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(len(eta)))
+    ax.set_yticks(np.arange(len(a)))
+    # ... and label them with the respective list entries
+    ax.set_xticklabels(eta)
+    ax.set_yticklabels(a)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+             rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(a)):
+        for j in range(len(eta)):
+            text = ax.text(j, i, results[i, j],
+                           ha="center", va="center", color="w")
+    ax.set_title("Classification accuracy (alpha/eta)")
+    fig.tight_layout()
+
+    plt.ylabel('alpha')
+    plt.xlabel('eta')
+
+    plt.show()
+
+
+def quality_test_heatmap(datamaker, iter):
+    a = np.linspace(0, 1, iter)
+    eta = np.linspace(0, 1, iter)
+
+    heatmap_results = []
+    for i in a:  # FIXME do tqdm progress bar
+        print("A: {}".format(i))
+        acc = quality_test(datamaker, datamaker.n)
+        heatmap_results.append(acc)
+
+    plot_heatmap(a, eta, heatmap_results)

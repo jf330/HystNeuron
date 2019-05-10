@@ -240,9 +240,9 @@ def synt_train_many(datamaker, iter):
 
 def synt_train(datamaker, eta=-1, a=-1):
     # Training setup
-    lr = 0.00001
-    to_update = 0.1
-    epochs = 10000
+    lr = 0.0001
+    to_update = 0.2
+    epochs = 12000
     omega_rate = 0.1
     noise = True
     datamaker.bg_freq_rate = 0
@@ -259,7 +259,7 @@ def synt_train(datamaker, eta=-1, a=-1):
     neuron_A_error = []
     for e in range(0, epochs):
         print("Epoch {}".format(e))
-        # if e==1000:
+        # if e%1000==0:
         #     datamaker.bg_freq_rate += 0.1
 
         # History arrays
@@ -306,12 +306,17 @@ def synt_train(datamaker, eta=-1, a=-1):
         desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
 
         # error, error_trace = trainer.calc_integrals_synt(neuron_A.K, desired_state, neuron_A_state, fea_order, time_occur, datamaker)
-        error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)
-        error = sum(error_trace)
+        # error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)
+        error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_out)
+        # error = sum(error_trace)
+        error = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__() - desired_spikes
 
-        hyst_data = trainer.calc_hyst(data, neuron_A.b)
-        neuron_A.feedback_weight_update(neuron_A_state, hyst_data, error, error_trace, to_update=to_update, lr=lr)
+        # hyst_data = trainer.calc_hyst(data, neuron_A.b)
+        # neuron_A.feedback_weight_update(neuron_A_state, hyst_data, error, error_trace, to_update=to_update, lr=lr)
         # neuron_A.feedback_weight_update(neuron_A_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
+
+        # neuron_A.feedback_weight_update(neuron_A_out, hyst_data, error, error_trace, to_update=to_update, lr=lr)
+        neuron_A.feedback_weight_update(neuron_A_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
 
         # print("Error: {}".format(error))
         neuron_A_error.append(error)
@@ -382,7 +387,7 @@ def aedat_train(datamaker, eta=-1, a=-1):
     # Training setup
     lr = 0.001
     to_update = 0.1
-    epochs = 20000
+    epochs = 1
     omega_rate = 0.08
     noise = True
     cwd = os.path.dirname(__file__)
@@ -427,8 +432,10 @@ def aedat_train(datamaker, eta=-1, a=-1):
         neuron_A_reset = []
         neuron_A.clear()
 
-        ### Present stimulus
-        for bin in range(0, len(data[1])):
+        # T = timepoints[-1]
+        T = 1000
+        i = 0
+        while i < T:
             sim = np.where(timepoints == i)[0]
             print("Clock: {}, inputs: {}".format(i, sim.__len__()))
 
@@ -441,11 +448,12 @@ def aedat_train(datamaker, eta=-1, a=-1):
             neuron_A_state.append(neuron_A.state)
             neuron_A_reset.append(neuron_A.reset)
             neuron_A_out.append(out_A)
+            i+=1
 
-        error, error_trace = trainer.calc_integrals(neuron_A.K, labels, neuron_A_state)
-        # hyst_data = trainer.calc_hyst(data, neuron_A.b)
-        # neuron_A.feedback_weight_update(neuron_A_state, hyst_data, error, error_trace, to_update=to_update, lr=lr)
-        neuron_A.feedback_weight_update(neuron_A_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
+        error_trace = trainer.calc_error(neuron_A.K, labels[0:T], neuron_A_state)
+        error = sum(error_trace)
+
+        neuron_A.events_weight_update(neuron_A_state, x, y, error, error_trace, to_update=to_update, lr=lr)
 
         # print("Error: {}".format(error))
         neuron_A_error.append(error)
@@ -484,8 +492,6 @@ def aedat_train(datamaker, eta=-1, a=-1):
 
     ### Save trained weights
     # np.save(cwd + "/weights_N_{}_Eta_{}_A_{}_noisy".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a), neuron_A.weight_m)
-
-
 
 
 def synt_train_bp(datamaker):
@@ -556,7 +562,8 @@ def synt_train_bp(datamaker):
         error_O = sum(error_trace_O)
 
         hyst_data = trainer.calc_hyst(data, neuron_O.b)
-        neuron_O.feedback_weight_update(neuron_O_state, hyst_data, error_O, error_trace_O, to_update=to_update, lr=lr)
+        # neuron_O.feedback_weight_update(neuron_O_state, hyst_data, error_O, error_trace_O, to_update=to_update, lr=lr)
+        neuron_O.feedback_weight_update(neuron_O_out, hyst_data, error_O, error_trace_O, to_update=to_update, lr=lr)
         # neuron_O.feedback_weight_update(neuron_O_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
 
         # print("Error: {}".format(error))

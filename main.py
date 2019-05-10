@@ -1,4 +1,5 @@
 import tests
+import utils.accuracy_tests
 from utils.datamaker import Datamaker
 
 
@@ -18,6 +19,8 @@ def main(
     fr = 5  # Background spiking frequency (Hz)
     random_seed = 0  # Start random seed
 
+    datamaker = Datamaker(n, duration, dt, n_fea, cf_mean, T_fea, fr, random_seed, ["random", "random"])
+
     if test_type == "cont_curr_input":
         tests.cont_current_input()
     elif test_type == "aedat_input":
@@ -25,15 +28,17 @@ def main(
     elif test_type == "simple_input":
         tests.simple_input()
     elif test_type == "synt_input":
-        datamaker = Datamaker(n, duration, dt, n_fea, cf_mean, T_fea, fr, random_seed, ["random", "random"])
         tests.synt_input(datamaker)
     elif test_type == "synt_train_many":
-        datamaker = Datamaker(n, duration, dt, n_fea, cf_mean, T_fea, fr, random_seed, ["random", "random"])
         tests.synt_train_many(datamaker, iterations)
     elif test_type == "synt_train":
-        datamaker = Datamaker(n, duration, dt, n_fea, cf_mean, T_fea, fr, random_seed, ["random", "random"])
         tests.synt_train(datamaker)
-
+    elif test_type == "synt_train_bp":
+        tests.synt_train_bp(datamaker)
+    elif test_type == "aedat_train":
+        tests.aedat_train(datamaker)
+    elif test_type == "quality_test":
+        utils.accuracy_tests.quality_test(datamaker, n)
 
 if __name__ == '__main__':
     import argparse

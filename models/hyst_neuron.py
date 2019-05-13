@@ -75,10 +75,10 @@ class HystNeuron:
         ### Correlation to post-syn output
         elig = []
         for i in range(0, len(self.weight_m)):
-            # elig.append(np.array(pre[:, i]) * np.array(post))
+            elig.append(np.array(pre[:, i]) * np.array(post))
             # elig.append(np.array(pre[:, i]) * np.array(abs(error_trace)))
             # elig.append(np.array(pre[:, i]) * np.array(error_trace))
-            elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace))
+            # elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace))
             # elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace) * self.weight_m[i, 0])
 
         elig_sum = np.sum(elig, axis=1)

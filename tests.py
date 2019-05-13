@@ -8,7 +8,7 @@ import os
 import csv
 
 import matplotlib.pyplot as plt
-plt.switch_backend("agg")
+#plt.switch_backend("agg")
 
 from models.hyst_neuron import HystNeuron
 from models.hyst_layer import HystLayer
@@ -244,12 +244,12 @@ def synt_train(datamaker, eta=-1, a=-1):
     lr = 0.0001
     to_update = 0.2
     epochs = 30000
-    omega_rate = 0.3
+    omega_rate = 0.5
 
     noise = True
     datamaker.bg_freq_rate = 0.5
 
-    plotting = False
+    plotting = True
     cwd = os.path.dirname(__file__)
 
     datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
@@ -272,10 +272,12 @@ def synt_train(datamaker, eta=-1, a=-1):
         neuron_A_reset = []
         neuron_A.clear()
 
-        if e == 29999:
-            data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=False)
-        else:
-            data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=True)
+        data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, fea_mode=3)
+
+        # if e == 19999:
+        #     data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=2)
+        # else:
+        #     data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=1)
 
         ### Present stimulus
         for bin in range(0, len(data[1])):

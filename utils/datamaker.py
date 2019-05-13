@@ -31,7 +31,7 @@ class Datamaker(object):
         else:
             self.feature_list = self.gen_features_var(feature_mode[0], feature_mode[1])
 
-    def gen_input_data(self, noise=False, single_fea=False):
+    def gen_input_data(self, noise=False, fea_mode=3):
         np.random.seed(self.seed)
 
         syn_ratio = 0.0001
@@ -45,14 +45,16 @@ class Datamaker(object):
         #  No background
         # data = np.zeros((self.n, 1))
 
-        if single_fea:
+        if fea_mode == 1:
             n_fea_occur1 = np.random.poisson(self.cf_mean, self.n_fea)  # TODO Can I reduce that, return 1 thing?
             choice = np.random.choice(self.n_fea-1,1)
             n_fea_occur = np.zeros_like(n_fea_occur1)
-            n_fea_occur[choice] = n_fea_occur1[choice]
-        else:
-            n_fea_occur1 = np.random.poisson(self.cf_mean, self.n_fea)  # TODO Can I reduce that, return 1 thing?
-            n_fea_occur = np.ones_like(n_fea_occur1)
+            n_fea_occur[choice] = n_fea_occur1[choice]  # Only a single feature
+        elif fea_mode == 2:
+            n_fea_occur1 = np.random.poisson(self.cf_mean, self.n_fea)
+            n_fea_occur = np.ones_like(n_fea_occur1)  # One of each features
+        elif fea_mode == 3:
+            n_fea_occur = np.random.poisson(self.cf_mean, self.n_fea)
 
         time_occur = self.time_occurrence(n_fea_occur)
         # time_occur = np.arange(0, sum(n_fea_occur), 1) * self.dt

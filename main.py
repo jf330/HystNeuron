@@ -3,7 +3,7 @@ import utils.accuracy_tests
 from utils.datamaker import Datamaker
 
 import matplotlib.pyplot as plt
-plt.switch_backend("agg")
+# plt.switch_backend("agg")
 
 import time
 
@@ -14,7 +14,7 @@ def main(
 ):
     # with np.errstate(divide='ignore'): # Ignore overflow, divide by 0 etc. warning messages
 
-    n = 300  # Number of neurons
+    n = 50  # Number of neurons
     dt = 0.001  # Bin length (s)
     duration = 0.1  # Trial duration background (s)
     n_fea = 2  # Total number of features and distractors

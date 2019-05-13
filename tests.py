@@ -4,9 +4,11 @@ import utils.training
 import autograd.numpy as npa
 from autograd import grad
 from scipy.sparse import csr_matrix
-import matplotlib.pyplot as plt
 import os
 import csv
+
+import matplotlib.pyplot as plt
+plt.switch_backend("agg")
 
 from models.hyst_neuron import HystNeuron
 from models.hyst_layer import HystLayer

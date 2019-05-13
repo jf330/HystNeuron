@@ -235,6 +235,7 @@ def synt_train_many(datamaker, iter):
     for i in params:  # FIXME do tqdm progress bar
         print("Eta: {}".format(i))
         for j in params:
+            print("A: {}".format(j))
             synt_train(datamaker, eta=i, a=j)
 
 

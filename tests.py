@@ -229,7 +229,6 @@ def simple_STDP_train():
 
 
 def synt_train_many(datamaker, iter):
-
     params = np.linspace(0, 1, iter)
 
     for i in params:  # FIXME do tqdm progress bar
@@ -239,13 +238,16 @@ def synt_train_many(datamaker, iter):
 
 
 def synt_train(datamaker, eta=-1, a=-1):
-    # Training setup
-    lr = 0.0002
+    ### Training setup
+    lr = 0.0001
     to_update = 0.2
-    epochs = 40000
+    epochs = 30000
     omega_rate = 0.3
+
     noise = True
     datamaker.bg_freq_rate = 0.5
+
+    plotting = False
     cwd = os.path.dirname(__file__)
 
     # datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
@@ -258,16 +260,17 @@ def synt_train(datamaker, eta=-1, a=-1):
 
     neuron_A_error = []
     for e in range(0, epochs):
-        print("Epoch {}".format(e))
-        # if e%1000==0:
-        #     datamaker.bg_freq_rate += 0.1
+        if e % 1000 == 0:
+            print("Epoch {}".format(e))
+            # datamaker.bg_freq_rate += 0.1
 
-        # History arrays
+        ### Init. history arrays
         neuron_A_state = []
         neuron_A_out = []
         neuron_A_reset = []
         neuron_A.clear()
-        if e == 39999:
+
+        if e == 29999:
             data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=False)
         else:
             data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=True)
@@ -329,66 +332,66 @@ def synt_train(datamaker, eta=-1, a=-1):
         # print("Error: {}".format(error))
         neuron_A_error.append(error)
 
+    if plotting:
+        ### Plot input data raster
+        markers = datamaker.add_marker(time_occur, fea_order, neuron_A.pre_syn - 1, neuron_A.pre_syn / 40)
+        myplt.plot_features(markers, data)
 
+        ### Plot reaction
+        plt.axhline(y=neuron_A.K, linestyle="--", color="k")
 
-    ### Plot input data raster
-    markers = datamaker.add_marker(time_occur, fea_order, neuron_A.pre_syn - 1, neuron_A.pre_syn / 40)
-    myplt.plot_features(markers, data)
+        markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+        for marker in markers:
+            plt.gca().add_patch(marker)
+            plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+            plt.gca().add_patch(marker)
+        plt.plot(neuron_A_out, label="A out")
+        plt.ylabel('O(t)')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
 
-    ### Plot reaction
-    plt.axhline(y=neuron_A.K, linestyle="--", color="k")
+        plt.plot(neuron_A_state, label="A state")
+        plt.plot(neuron_A_reset, label="A reset")
+        plt.plot(neuron_A_out, label="A out")
+        plt.axhline(y=neuron_A.K, linestyle="--", color="k")
 
-    markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
-    for marker in markers:
-        plt.gca().add_patch(marker)
-        plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
-        plt.gca().add_patch(marker)
-    plt.plot(neuron_A_out, label="A out")
-    plt.ylabel('O(t)')
-    plt.xlabel('Time')
-    plt.legend(loc='best')
-    plt.show()
+        markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+        for marker in markers:
+            plt.gca().add_patch(marker)
+            plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+            plt.gca().add_patch(marker)
 
-    plt.plot(neuron_A_state, label="A state")
-    plt.plot(neuron_A_reset, label="A reset")
-    plt.plot(neuron_A_out, label="A out")
-    plt.axhline(y=neuron_A.K, linestyle="--", color="k")
+        plt.ylabel('Neural dynamics')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
 
-    markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
-    for marker in markers:
-        plt.gca().add_patch(marker)
-        plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
-        plt.gca().add_patch(marker)
+        ### Plot error
+        plt.scatter(np.array(range(0, neuron_A_error.__len__())), neuron_A_error, marker="x", label="Error (A)")
+        # plt.plot(neuron_A_error, label="Error (A)")
+        plt.ylabel('Error')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
 
-    plt.ylabel('Neural dynamics')
-    plt.xlabel('Time')
-    plt.legend(loc='best')
-    plt.show()
+        ### Plot trial error
+        markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+        for marker in markers:
+            plt.gca().add_patch(marker)
+            plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+            plt.gca().add_patch(marker)
+        plt.plot(error_trace)
+        plt.ylabel('Error')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
 
-    ### Plot error
-    plt.scatter(np.array(range(0, neuron_A_error.__len__())), neuron_A_error, marker="x", label="Error (A)")
-    # plt.plot(neuron_A_error, label="Error (A)")
-    plt.ylabel('Error')
-    plt.xlabel('Time')
-    plt.legend(loc='best')
-    plt.show()
-
-    ### Plot trial error
-    markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
-    for marker in markers:
-        plt.gca().add_patch(marker)
-        plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
-        plt.gca().add_patch(marker)
-    plt.plot(error_trace)
-    plt.ylabel('Error')
-    plt.xlabel('Time')
-    plt.legend(loc='best')
-    plt.show()
-
+    ### Print spike times
     print(np.where(np.array(neuron_A_state) >= 1)[0])
 
     ### Save trained weights
-    # np.save(cwd + "/weights_N_{}_Eta_{}_A_{}_noisy".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a), neuron_A.weight_m)
+    np.save(cwd + "/results/weights_N_{}_Eta_{}_A_{}_noisy".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a), neuron_A.weight_m)
 
 
 def aedat_train(datamaker, eta=-1, a=-1):

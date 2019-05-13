@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def calc_hyst(input_data, decay):
+def calc_synt_reset(input_data, decay):
     # Uniform out function based input
     hyst_data = []
     for bin in range(0, len(input_data[1])):
@@ -47,6 +47,7 @@ def calc_integrals_synt(threshold, target_state, state, fea_order, time_occur, d
 
     return error, error_trace
 
+
 def calc_error(threshold, desired, actual):
     error = np.zeros((len(desired)))
     target = 0
@@ -70,6 +71,8 @@ def calc_error(threshold, desired, actual):
             # actual_output = np.sum(segment[np.where(segment >= threshold)])
             # error_value = actual_output - target_value
 
+            # error_value = abs(error_value) * error_value
+
             if error_value == 0:
                 error[target_index_start:target_index_end] = np.zeros((range_len)).tolist()
             else:
@@ -78,7 +81,7 @@ def calc_error(threshold, desired, actual):
 
             target_value = 0
             pattern_on = False
-            # error[bin] = 0
+            # error[bin] = 0å
         if (target == 0) and (target_value == 0):
             if actual[bin] >= threshold:
                 error[bin] = threshold

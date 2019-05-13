@@ -2,6 +2,7 @@ import tests
 import utils.accuracy_tests
 from utils.datamaker import Datamaker
 
+import time
 
 def main(
         model_type,
@@ -12,14 +13,15 @@ def main(
 
     n = 300  # Number of neurons
     dt = 0.001  # Bin length (s)
-    duration = 0.2  # Trial duration background (s)
-    n_fea = 3  # Total number of features and distractors
+    duration = 0.1  # Trial duration background (s)
+    n_fea = 2  # Total number of features and distractors
     cf_mean = 2  # Mean number of occurrences for each feature
     T_fea = 0.05  # Base feature duration (s)
     fr = 5  # Background spiking frequency (Hz)
     random_seed = 0  # Start random seed
 
     datamaker = Datamaker(n, duration, dt, n_fea, cf_mean, T_fea, fr, random_seed, ["random", "random"])
+    start_time = time.time()
 
     if test_type == "cont_curr_input":
         tests.cont_current_input()
@@ -39,6 +41,8 @@ def main(
         tests.aedat_train(datamaker)
     elif test_type == "quality_test":
         utils.accuracy_tests.quality_test(datamaker, n)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     import argparse

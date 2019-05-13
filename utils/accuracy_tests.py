@@ -29,7 +29,9 @@ def quality_test(datamaker, pre_syn):
         neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s)
 
         feature_list = np.load("/Users/jf330/new_results/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
-        neuron_A.in_weights = np.load("/Users/jf330/new_results/HystNeuron/weights_N_{}_Eta_{}_A_0.5.npy".format(pre_syn, s))
+        neuron_A.in_weights = np.load("/Users/jf330/new_results/HystNeuron/weights_N_{}_Eta_{}_A_0.4_noisy.npy".format(pre_syn, s))
+
+        print("Test for Eta: {}".format(neuron_A.eta))
 
         resp_dict = {}
         error_dict = {}
@@ -55,7 +57,7 @@ def quality_test(datamaker, pre_syn):
                     # print("Clock: {}, inputs: {}".format(bin, simul_events))
 
                     if simul_events.size != 0:
-                        neuron_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(), values=np.ones(simul_events.__len__()).tolist())
+                        neuron_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(), values=np.ones_like(simul_events))
                     out_A = neuron_A.decay_step()
 
                     neuron_A_out.append(out_A)
@@ -65,7 +67,7 @@ def quality_test(datamaker, pre_syn):
 
                 fea_responses.append(actual_num_spikes)
                 if actual_num_spikes == desired_spikes:
-                    fea_correct +=1
+                    fea_correct += 1
 
             null_responses = []
             desired_null = 0
@@ -84,7 +86,7 @@ def quality_test(datamaker, pre_syn):
                     # print("Clock: {}, inputs: {}".format(bin, simul_events))
 
                     if simul_events.size != 0:
-                        neuron_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(), values=np.ones(simul_events.__len__()).tolist())
+                        neuron_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(), values=np.ones_like(simul_events))
                     out_A = neuron_A.decay_step()
 
                     neuron_A_out.append(out_A)
@@ -95,14 +97,13 @@ def quality_test(datamaker, pre_syn):
 
                 null_responses.append(actual_num_spikes)
 
-            print("Test for Eta: {}".format(neuron_A.eta))
             # print("Null, {}: {} spikes".format(fea, sum(null_responses)))
             # print("Feature, {}: {} spikes".format(fea, sum(fea_responses)))
 
             # null_spike_sum.append(sum(null_responses))
 
-            resp_mean = (sum(fea_responses) - sum(null_responses))/epochs
-            # resp_mean = sum(fea_responses)/epochs
+            # resp_mean = (sum(fea_responses) - sum(null_responses))/epochs
+            resp_mean = sum(fea_responses)/epochs
 
             resp_dict.update({fea: resp_mean})
             error_dict.update({fea: fea_correct/epochs})

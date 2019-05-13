@@ -3,7 +3,7 @@ import numpy as np
 
 class HystNeuron:
 
-    def __init__(self, h=100, K=1, eta=0.95, a=1, b=0.5, omega_rate=0.02, pre_x=1, pre_y=1):
+    def __init__(self, h=1000, K=1, eta=0.5, a=0.5, b=0.5, omega_rate=0.02, pre_x=1, pre_y=1):
 
         ### ODEs parameters
         self.h = h
@@ -28,7 +28,7 @@ class HystNeuron:
 
         ### Momentum weight update
         self.update_prev = np.zeros((pre_x,pre_y))
-        self.momentum = 0
+        self.momentum = 0.4
 
     def clear(self):
         self.out = 0
@@ -67,7 +67,7 @@ class HystNeuron:
     def STDP_weight_update(self, pre_out, post_out):
         i = 0
 
-    def feedback_weight_update(self, output, data, error, error_trace, to_update=0.2, lr=0.001):
+    def feedback_weight_update(self, post, pre, error, error_trace, to_update=0.2, lr=0.001):
 
         ### Select top x% most eligible pre-syn neurons over whole input
         update_partition = np.rint((self.weight_m.__len__()) * to_update).astype(int)
@@ -75,14 +75,11 @@ class HystNeuron:
         ### Correlation to post-syn output
         elig = []
         for i in range(0, len(self.weight_m)):
-            elig.append(np.array(data[:, i]) * np.array(output))
-
-        ### Correlation to error_trace
-        # elig = []
-        # for i in range(0, len(self.weight_m)):
-            # elig.append(np.array(data[:, i]) * np.array(abs(error_trace)))
-            # elig.append(np.array(data[:, i]) * np.array(error_trace))
-            # elig.append(np.array(data[:, i]) * np.array(error_trace) * np.array(output))
+            elig.append(np.array(pre[:, i]) * np.array(post))
+            # elig.append(np.array(pre[:, i]) * np.array(abs(error_trace)))
+            # elig.append(np.array(pre[:, i]) * np.array(error_trace))
+            # elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace))
+            # elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace) * self.weight_m[i, 0])
 
         elig_sum = np.sum(elig, axis=1)
         most_elig_syn = np.argpartition(elig_sum, -update_partition)[-update_partition:]
@@ -97,13 +94,15 @@ class HystNeuron:
         update_new = []
         for i in range(0, len(self.weight_m)):
             if i in most_elig_syn:
-                update_new.append(error * -lr)
-                # if error > 0:
-                #     update_new.append(-lr)
-                # elif error < 0:
-                #     update_new.append(lr)
-                # else:
-                #     update_new.append(0)
+                # update_new.append(error * -lr)
+                # update_new.append(-elig_sum[i] * lr)
+
+                if error > 0:
+                    update_new.append(-lr)
+                elif error < 0:
+                    update_new.append(lr)
+                else:
+                    update_new.append(0)
             else:
                 update_new.append(0)
 

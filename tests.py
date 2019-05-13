@@ -240,12 +240,12 @@ def synt_train_many(datamaker, iter):
 
 def synt_train(datamaker, eta=-1, a=-1):
     # Training setup
-    lr = 0.0001
+    lr = 0.0002
     to_update = 0.2
-    epochs = 12000
-    omega_rate = 0.1
+    epochs = 40000
+    omega_rate = 0.3
     noise = True
-    datamaker.bg_freq_rate = 0
+    datamaker.bg_freq_rate = 0.5
     cwd = os.path.dirname(__file__)
 
     # datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
@@ -267,8 +267,10 @@ def synt_train(datamaker, eta=-1, a=-1):
         neuron_A_out = []
         neuron_A_reset = []
         neuron_A.clear()
-
-        data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise)
+        if e == 39999:
+            data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=False)
+        else:
+            data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=True)
 
         ### Present stimulus
         for bin in range(0, len(data[1])):
@@ -296,27 +298,33 @@ def synt_train(datamaker, eta=-1, a=-1):
                 desired_state[index[count]:index[count] + T_fea_local] = 1
             elif fea_order[count] == 1:
                 desired_state[index[count]:index[count] + T_fea_local] = 2
-            elif fea_order[count] == 2:
-                desired_state[index[count]:index[count] + T_fea_local] = 3
+            # elif fea_order[count] == 2:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 3
+            # elif fea_order[count] == 3:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 4
+            # elif fea_order[count] == 4:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 5
 
             index += np.rint(T_fea_local).astype(int)
             count += 1
 
-        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
-        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
+        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
+                         # + n_fea_occur[3] * 4 + n_fea_occur[4] * 5
 
         # error, error_trace = trainer.calc_integrals_synt(neuron_A.K, desired_state, neuron_A_state, fea_order, time_occur, datamaker)
-        # error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)
-        error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_out)
-        # error = sum(error_trace)
+        error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)
+        # error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_out)
+
         error = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__() - desired_spikes
+        # error = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__() - desired_spikes
 
-        # hyst_data = trainer.calc_hyst(data, neuron_A.b)
-        # neuron_A.feedback_weight_update(neuron_A_state, hyst_data, error, error_trace, to_update=to_update, lr=lr)
         # neuron_A.feedback_weight_update(neuron_A_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
+        # neuron_A.feedback_weight_update(neuron_A_out, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
 
+        synt_reset = trainer.calc_synt_reset(data, neuron_A.b)
+        neuron_A.feedback_weight_update(neuron_A_state, synt_reset, error, error_trace, to_update=to_update, lr=lr)
         # neuron_A.feedback_weight_update(neuron_A_out, hyst_data, error, error_trace, to_update=to_update, lr=lr)
-        neuron_A.feedback_weight_update(neuron_A_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
 
         # print("Error: {}".format(error))
         neuron_A_error.append(error)
@@ -561,7 +569,7 @@ def synt_train_bp(datamaker):
         error_trace_O = trainer.calc_error(neuron_O.K, desired_state, neuron_O_state)
         error_O = sum(error_trace_O)
 
-        hyst_data = trainer.calc_hyst(data, neuron_O.b)
+        hyst_data = trainer.calc_synt_reset(data, neuron_O.b)
         # neuron_O.feedback_weight_update(neuron_O_state, hyst_data, error_O, error_trace_O, to_update=to_update, lr=lr)
         neuron_O.feedback_weight_update(neuron_O_out, hyst_data, error_O, error_trace_O, to_update=to_update, lr=lr)
         # neuron_O.feedback_weight_update(neuron_O_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)

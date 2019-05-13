@@ -2,6 +2,9 @@ import tests
 import utils.accuracy_tests
 from utils.datamaker import Datamaker
 
+import matplotlib.pyplot as plt
+plt.switch_backend("agg")
+
 import time
 
 def main(

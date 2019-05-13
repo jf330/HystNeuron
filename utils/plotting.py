@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+plt.switch_backend("agg")
 
 
 def plot_features(markers, input_data):

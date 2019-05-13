@@ -44,7 +44,6 @@ def aedat_input():
                 labels[int(row[1])-start:int(row[2])-start] = int(row[0])
             i+=1
 
-
     hyst_model = HystNeuron(pre_x=240, pre_y=128)
 
     T = 1500

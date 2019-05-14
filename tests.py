@@ -247,7 +247,7 @@ def synt_train(datamaker, eta=-1, a=-1):
     omega_rate = 0.5
 
     noise = True
-    datamaker.bg_freq_rate = 1
+    datamaker.bg_freq_rate = 0.5
 
     plotting = False
     cwd = os.path.dirname(__file__)

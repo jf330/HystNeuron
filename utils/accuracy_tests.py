@@ -7,9 +7,10 @@ import os
 
 def quality_test(datamaker, pre_syn, a=0.5, iter=11):
     background = 100
-    epochs = 100
+    epochs = 200
     datamaker.bg_freq_rate = 0.5
     cwd = os.path.dirname(__file__)
+    plotting = False
 
     responses = [1,2]
     # responses = [1,2,3]
@@ -31,11 +32,11 @@ def quality_test(datamaker, pre_syn, a=0.5, iter=11):
 
         neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s, a=a)
 
-        neuron_A.weight_m = np.load("/Users/jf330/newest_results/weights_N_{}_Eta_{}_A_{}_noisy_small1.npy".format(pre_syn, s, a))
-        feature_list = np.load("/Users/jf330/newest_results/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
+        # neuron_A.weight_m = np.load("/Users/jf330/newest_results/weights_N_{}_Eta_{}_A_{}_noisy_small1.npy".format(pre_syn, s, a))
+        # feature_list = np.load("/Users/jf330/newest_results/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
-        # neuron_A.weight_m = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_fixed.npy".format(pre_syn, s, a))
-        # feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
+        neuron_A.weight_m = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_fixed.npy".format(pre_syn, s, a))
+        feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
         print("Test for Eta: {}, A: {}".format(neuron_A.eta, neuron_A.a))
 
@@ -139,19 +140,21 @@ def quality_test(datamaker, pre_syn, a=0.5, iter=11):
     print(fea_2_correct)
     # print(fea_3_correct)
 
-    # plot_accuracy(fea_null, fea_1, fea_2, fea_3)
-    plot_accuracy(fea_null, fea_1=fea_1, fea_2=fea_2)
-
-    # pyplot.scatter(x_axis, fea_3_correct, color="green", marker="x")
-    plt.scatter(x_axis, fea_2_correct, color="blue", marker="x")
-    plt.scatter(x_axis, fea_1_correct, color="red", marker="x")
-    plt.show()
-
     acc = (np.array(fea_1_correct) + np.array(fea_2_correct)) / 2
     print("Acc: {}, for a: {}".format(acc, neuron_A.a))
-    # pyplot.scatter(x_axis, (np.array(fea_1_correct)+np.array(fea_2_correct)+np.array(fea_3_correct))/3, color="black")
-    plt.scatter(x_axis, acc, color="black")
-    plt.show()
+
+    if plotting:
+        # plot_accuracy(fea_null, fea_1, fea_2, fea_3)
+        plot_accuracy(fea_null, fea_1=fea_1, fea_2=fea_2)
+
+        # pyplot.scatter(x_axis, fea_3_correct, color="green", marker="x")
+        plt.scatter(x_axis, fea_2_correct, color="blue", marker="x")
+        plt.scatter(x_axis, fea_1_correct, color="red", marker="x")
+        plt.show()
+
+        # pyplot.scatter(x_axis, (np.array(fea_1_correct)+np.array(fea_2_correct)+np.array(fea_3_correct))/3, color="black")
+        plt.scatter(x_axis, acc, color="black")
+        plt.show()
 
     return acc
 

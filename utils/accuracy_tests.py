@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 
 
-def quality_test(datamaker, pre_syn):
+def quality_test(datamaker, pre_syn, a=0.5, iter=11):
     background = 100
     epochs = 100
     datamaker.bg_freq_rate = 0.5
@@ -24,19 +24,18 @@ def quality_test(datamaker, pre_syn):
     # fea_3_correct = []
 
     # x_axis = [0]
-    x = np.linspace(0, 1, 5)
+    x = np.linspace(0, 1, iter)
     x_axis = x.tolist()
-
-    a = 0.75
 
     for s in x_axis:
 
         neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s, a=a)
 
-        # feature_list = np.load("/Users/jf330/newest_results/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
-        feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
+        neuron_A.weight_m = np.load("/Users/jf330/newest_results/weights_N_{}_Eta_{}_A_{}_noisy_small1.npy".format(pre_syn, s, a))
+        feature_list = np.load("/Users/jf330/newest_results/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
-        neuron_A.in_weights = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_fixed.npy".format(pre_syn, s, a))
+        # neuron_A.weight_m = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_fixed.npy".format(pre_syn, s, a))
+        # feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
         print("Test for Eta: {}, A: {}".format(neuron_A.eta, neuron_A.a))
 
@@ -167,11 +166,11 @@ def plot_accuracy(fea_null=[], fea_1=[], fea_2=[], fea_3=[]):
 
     error_0 = abs(np.array(fea_null) - 0)
 
-    x = np.linspace(0, 1, 5)
+    x = np.linspace(0, 1, fea_1.__len__())
     x_axis = x.tolist()
 
     sum_error = []
-    for i in range(0, 5):
+    for i in range(0, fea_1.__len__()):
         # sum_error.append(error_0[i] + error_1[i] + error_2[i] + error_3[i])
         sum_error.append(error_0[i] + error_1[i] + error_2[i])
 
@@ -201,23 +200,23 @@ def plot_accuracy(fea_null=[], fea_1=[], fea_2=[], fea_3=[]):
 def plot_heatmap(a, eta, results):
 
     fig, ax = plt.subplots()
-    im = ax.imshow(results)
+    im = ax.imshow(results, vmin=0, vmax=1)
 
     # We want to show all ticks...
     ax.set_xticks(np.arange(len(eta)))
     ax.set_yticks(np.arange(len(a)))
     # ... and label them with the respective list entries
-    ax.set_xticklabels(eta)
-    ax.set_yticklabels(a)
+    ax.set_xticklabels(np.around(eta, decimals=2))
+    ax.set_yticklabels(np.around(a, decimals=2))
 
     # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
              rotation_mode="anchor")
 
-    # Loop over data dimensions and create text annotations.
+    ##Loop over data dimensions and create text annotations.
     for i in range(len(a)):
         for j in range(len(eta)):
-            text = ax.text(j, i, results[i, j],
+            text = ax.text(j, i, np.around(results[i][j], decimals=2),
                            ha="center", va="center", color="w")
     ax.set_title("Classification accuracy (alpha/eta)")
     fig.tight_layout()
@@ -235,7 +234,7 @@ def quality_test_heatmap(datamaker, iter):
     heatmap_results = []
     for i in a:  # FIXME do tqdm progress bar
         print("A: {}".format(i))
-        acc = quality_test(datamaker, datamaker.n)
+        acc = quality_test(datamaker, datamaker.n, i, iter)
         heatmap_results.append(acc)
 
     plot_heatmap(a, eta, heatmap_results)

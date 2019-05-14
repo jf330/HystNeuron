@@ -3,7 +3,7 @@ import numpy as np
 
 class HystNeuron:
 
-    def __init__(self, h=1000, K=1, eta=1.0, a=0.5, b=0.5, omega_rate=0.02, pre_x=1, pre_y=1):
+    def __init__(self, h=1000, K=1, eta=0.75, a=0.5, b=0.5, omega_rate=0.02, pre_x=1, pre_y=1):
 
         ### ODEs parameters
         self.h = h

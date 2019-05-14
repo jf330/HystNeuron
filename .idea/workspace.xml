@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6a072c3d-a18d-46bc-b525-34af36d6a427" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/hyst_neuron.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/hyst_neuron.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/accuracy_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/accuracy_tests.py" afterDir="false" />
     </list>
@@ -16,13 +15,13 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/HystNeuron$aedat_train.coverage" NAME="aedat_train Coverage Results" MODIFIED="1557425714023" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/diff_neuron$simple_input.coverage" NAME="simple_input Coverage Results" MODIFIED="1556958639592" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/HystNeuron$synt_train_many.coverage" NAME="synt_train_many Coverage Results" MODIFIED="1557833082803" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/HystNeuron$synt_train_many.coverage" NAME="synt_train_many Coverage Results" MODIFIED="1557838888608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/diff_neuron$aedat_input.coverage" NAME="aedat_input Coverage Results" MODIFIED="1556958689088" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/diff_neuron$synt_input.coverage" NAME="synt_input Coverage Results" MODIFIED="1556958820881" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/diff_neuron$cont_curr.coverage" NAME="cont_curr Coverage Results" MODIFIED="1556744475748" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/HystNeuron$synt_input.coverage" NAME="synt_input Coverage Results" MODIFIED="1557231848087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/HystNeuron$quality_test.coverage" NAME="quality_test Coverage Results" MODIFIED="1557834099796" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/HystNeuron$synt_train.coverage" NAME="synt_train Coverage Results" MODIFIED="1557835047677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/HystNeuron$synt_train.coverage" NAME="synt_train Coverage Results" MODIFIED="1557837646345" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/HystNeuron$quality_test.coverage" NAME="quality_test Coverage Results" MODIFIED="1557838979245" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/HystNeuron$aedat_input.coverage" NAME="aedat_input Coverage Results" MODIFIED="1557491395626" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/HystNeuron$synt_input_train.coverage" NAME="synt_train Coverage Results" MODIFIED="1557501498289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/diff_neuron$synt_input_train.coverage" NAME="synt_input_train Coverage Results" MODIFIED="1556958500890" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
@@ -106,9 +105,9 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="Python Console" value="1186" />
+          <entry key="Python Console" value="1276" />
           <entry key="gitignore" value="37" />
-          <entry key="py" value="3196" />
+          <entry key="py" value="3266" />
           <entry key="txt" value="1" />
         </counts>
       </usages-collector>
@@ -116,7 +115,7 @@
         <counts>
           <entry key="Git file" value="37" />
           <entry key="PLAIN_TEXT" value="1" />
-          <entry key="Python" value="4382" />
+          <entry key="Python" value="4542" />
         </counts>
       </usages-collector>
     </session>
@@ -129,8 +128,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/hyst_neuron.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="72" selection-start-line="72" selection-end-line="72" />
+            <state relative-caret-position="330">
+              <caret line="22" column="26" lean-forward="true" selection-start-line="22" selection-start-column="26" selection-end-line="22" selection-end-column="26" />
               <folding>
                 <marker date="1557834937713" expanded="true" signature="2223:2229" ph="..." />
               </folding>
@@ -138,37 +137,28 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="352">
-              <caret line="262" column="105" selection-start-line="262" selection-start-column="105" selection-end-line="262" selection-end-column="105" />
+            <state relative-caret-position="-691">
+              <caret line="254" selection-start-line="254" selection-end-line="255" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
-                <marker date="1557835041098" expanded="true" signature="3955:6637" ph="..." />
+                <marker date="1557837644257" expanded="true" signature="3955:6637" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/utils/accuracy_tests.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="461">
-              <caret line="48" column="38" lean-forward="true" selection-start-line="48" selection-start-column="38" selection-end-line="48" selection-end-column="38" />
+            <state relative-caret-position="175">
+              <caret line="29" column="12" selection-start-line="29" selection-start-column="12" selection-end-line="29" selection-end-column="12" />
               <folding>
                 <element signature="e#0#41#0" expanded="true" />
-                <marker date="1557833942314" expanded="true" signature="7584:7585" ph="..." />
+                <marker date="1557838978027" expanded="true" signature="7651:7652" ph="..." />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/numpy/lib/npyio.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="233">
-              <caret line="414" selection-start-line="414" selection-end-line="414" />
             </state>
           </provider>
         </entry>
@@ -176,8 +166,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-229">
-              <caret line="16" column="31" lean-forward="true" selection-start-line="16" selection-start-column="31" selection-end-line="16" selection-end-column="31" />
+            <state relative-caret-position="240">
+              <caret line="16" column="10" selection-start-line="16" selection-start-column="10" selection-end-line="16" selection-end-column="10" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -242,10 +232,10 @@
         <option value="$PROJECT_DIR$/utils/training.py" />
         <option value="$PROJECT_DIR$/utils/plotting.py" />
         <option value="$PROJECT_DIR$/utils/datamaker.py" />
-        <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/utils/accuracy_tests.py" />
         <option value="$PROJECT_DIR$/models/hyst_neuron.py" />
         <option value="$PROJECT_DIR$/tests.py" />
+        <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/utils/accuracy_tests.py" />
       </list>
     </option>
   </component>
@@ -328,7 +318,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.synt_train">
+  <component name="RunManager" selected="Python.quality_test">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="diff_neuron" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -541,7 +531,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
-      <option name="PARAMETERS" value="--test_type synt_train_many --iter 3" />
+      <option name="PARAMETERS" value="--test_type synt_train_many --iter 5" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -587,29 +577,29 @@
     <frame x="1680" y="-127" width="1920" height="986" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.67703706" visible="true" weight="0.19169329" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.675969" visible="true" weight="0.19169329" />
       <window_info id="Structure" order="1" sideWeight="0.50158733" side_tool="true" weight="0.17216118" />
-      <window_info id="Favorites" order="2" sideWeight="0.32296297" side_tool="true" visible="true" weight="0.19169329" />
+      <window_info id="Favorites" order="2" sideWeight="0.324031" side_tool="true" weight="0.19169329" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32953367" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.2785235" />
-      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.24496645" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.2785235" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.24496645" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32953367" />
       <window_info anchor="bottom" id="Docker" order="7" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.17720208" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.17673378" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Terminal" order="11" />
-      <window_info anchor="bottom" id="Python Console" order="12" weight="0.32953367" />
+      <window_info anchor="bottom" id="Python Console" order="12" weight="0.32885906" />
       <window_info anchor="right" x="0" y="0" width="370" height="756" id="Documentation" order="0" sideWeight="0.13553114" side_tool="true" weight="0.25641027" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="2" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
       <window_info anchor="right" id="JuliaSciView" order="4" weight="0.32967034" />
       <window_info anchor="right" id="Remote Host" order="5" sideWeight="0.496136" weight="0.20340788" />
-      <window_info anchor="right" x="606" y="211" width="467" height="579" id="SciView" order="6" sideWeight="0.8644689" visible="true" weight="0.386049" />
+      <window_info active="true" anchor="right" x="606" y="211" width="467" height="579" id="SciView" order="6" sideWeight="0.8644689" visible="true" weight="0.30191693" />
       <window_info anchor="right" id="Database" order="7" sideWeight="0.49852508" weight="0.32905984" />
     </layout>
   </component>
@@ -659,28 +649,48 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/utils/accuracy_tests.py</url>
-          <line>52</line>
+          <line>55</line>
           <option name="timeStamp" value="15" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/utils/accuracy_tests.py</url>
-          <line>70</line>
+          <line>73</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/utils/accuracy_tests.py</url>
-          <line>35</line>
+          <line>38</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/utils/accuracy_tests.py</url>
-          <line>43</line>
+          <line>46</line>
           <option name="timeStamp" value="18" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/hyst_neuron.py</url>
           <line>72</line>
           <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tests.py</url>
+          <line>264</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tests.py</url>
+          <line>262</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/models/hyst_neuron.py</url>
+          <line>108</line>
+          <option name="timeStamp" value="30" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/models/hyst_neuron.py</url>
+          <line>114</line>
+          <option name="timeStamp" value="31" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -774,16 +784,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-229">
-          <caret line="16" column="31" lean-forward="true" selection-start-line="16" selection-start-column="31" selection-end-line="16" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/numpy/lib/npyio.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="233">
@@ -791,34 +791,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/accuracy_tests.py">
+    <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="461">
-          <caret line="48" column="38" lean-forward="true" selection-start-line="48" selection-start-column="38" selection-end-line="48" selection-end-column="38" />
+        <state relative-caret-position="240">
+          <caret line="16" column="10" selection-start-line="16" selection-start-column="10" selection-end-line="16" selection-end-column="10" />
           <folding>
-            <element signature="e#0#41#0" expanded="true" />
-            <marker date="1557833942314" expanded="true" signature="7584:7585" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/hyst_neuron.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="72" selection-start-line="72" selection-end-line="72" />
-          <folding>
-            <marker date="1557834937713" expanded="true" signature="2223:2229" ph="..." />
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tests.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="262" column="105" selection-start-line="262" selection-start-column="105" selection-end-line="262" selection-end-column="105" />
+        <state relative-caret-position="-691">
+          <caret line="254" selection-start-line="254" selection-end-line="255" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <marker date="1557835041098" expanded="true" signature="3955:6637" ph="..." />
+            <marker date="1557837644257" expanded="true" signature="3955:6637" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/hyst_neuron.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" column="26" lean-forward="true" selection-start-line="22" selection-start-column="26" selection-end-line="22" selection-end-column="26" />
+          <folding>
+            <marker date="1557834937713" expanded="true" signature="2223:2229" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils/accuracy_tests.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="175">
+          <caret line="29" column="12" selection-start-line="29" selection-start-column="12" selection-end-line="29" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#41#0" expanded="true" />
+            <marker date="1557838978027" expanded="true" signature="7651:7652" ph="..." />
           </folding>
         </state>
       </provider>

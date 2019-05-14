@@ -243,11 +243,11 @@ def synt_train(datamaker, eta=-1, a=-1):
     ### Training setup
     lr = 0.0002
     to_update = 0.2
-    epochs = 1
+    epochs = 20000
     omega_rate = 0.5
 
     noise = True
-    datamaker.bg_freq_rate = 0.5
+    datamaker.bg_freq_rate = 1
 
     plotting = True
     cwd = os.path.dirname(__file__)
@@ -260,7 +260,7 @@ def synt_train(datamaker, eta=-1, a=-1):
     else:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, eta=eta, a=a)
 
-    neuron_A.in_weights = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_test.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
+    # neuron_A.in_weights = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_test.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
 
     neuron_A_error = []
     for e in range(0, epochs):
@@ -397,7 +397,7 @@ def synt_train(datamaker, eta=-1, a=-1):
     print(np.where(np.array(neuron_A_state) >= 1)[0])
 
     ### Save trained weights
-    # np.save(cwd + "/results/weights_N_{}_Eta_{}_A_{}_test.npy".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a), neuron_A.weight_m)
+    # np.save(cwd + "/results/weights_N_{}_Eta_{}_A_{}_fixed.npy".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a), neuron_A.weight_m)
 
 
 def aedat_train(datamaker, eta=-1, a=-1):

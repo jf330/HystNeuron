@@ -2,12 +2,14 @@ from models.hyst_neuron import HystNeuron
 from models.hyst_layer import  HystLayer
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 
 def quality_test(datamaker, pre_syn):
     background = 100
     epochs = 100
     datamaker.bg_freq_rate = 0.5
+    cwd = os.path.dirname(__file__)
 
     responses = [1,2]
     # responses = [1,2,3]
@@ -22,10 +24,10 @@ def quality_test(datamaker, pre_syn):
     # fea_3_correct = []
 
     # x_axis = [0]
-    x = np.linspace(0, 1, 3)
+    x = np.linspace(0, 1, 5)
     x_axis = x.tolist()
 
-    a = 0.5
+    a = 0.75
 
     for s in x_axis:
 
@@ -33,9 +35,10 @@ def quality_test(datamaker, pre_syn):
 
         # feature_list = np.load("/Users/jf330/newest_results/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
         feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
-        neuron_A.in_weights = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_noisy.npy".format(pre_syn, s, a))
 
-        print("Test for Eta: {}".format(neuron_A.eta))
+        neuron_A.in_weights = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_fixed.npy".format(pre_syn, s, a))
+
+        print("Test for Eta: {}, A: {}".format(neuron_A.eta, neuron_A.a))
 
         resp_dict = {}
         error_dict = {}
@@ -164,11 +167,11 @@ def plot_accuracy(fea_null=[], fea_1=[], fea_2=[], fea_3=[]):
 
     error_0 = abs(np.array(fea_null) - 0)
 
-    x = np.linspace(0, 1, 3)
+    x = np.linspace(0, 1, 5)
     x_axis = x.tolist()
 
     sum_error = []
-    for i in range(0, 3):
+    for i in range(0, 5):
         # sum_error.append(error_0[i] + error_1[i] + error_2[i] + error_3[i])
         sum_error.append(error_0[i] + error_1[i] + error_2[i])
 

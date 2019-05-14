@@ -3,7 +3,7 @@ import numpy as np
 
 class HystNeuron:
 
-    def __init__(self, h=1000, K=1, eta=0.5, a=0.5, b=0.5, omega_rate=0.02, pre_x=1, pre_y=1):
+    def __init__(self, h=1000, K=1, eta=1.0, a=0.5, b=0.5, omega_rate=0.02, pre_x=1, pre_y=1):
 
         ### ODEs parameters
         self.h = h
@@ -21,13 +21,13 @@ class HystNeuron:
         self.pre_syn = pre_x * pre_y
         self.omega_rate = omega_rate
         if omega_rate < 0:
-            self.weight_m = np.ones((pre_x,pre_y))
+            self.weight_m = np.ones((pre_x, pre_y))
         else:
-            self.weight_m = np.random.rand(pre_x,pre_y) * omega_rate
+            self.weight_m = np.random.rand(pre_x, pre_y) * omega_rate
             # self.weight_m = np.random.randn(pre_x,pre_y) * omega_rate
 
         ### Momentum weight update
-        self.update_prev = np.zeros((pre_x,pre_y))
+        self.update_prev = np.zeros((pre_x, pre_y))
         self.momentum = 0.4
 
     def clear(self):
@@ -106,7 +106,7 @@ class HystNeuron:
             else:
                 update_new.append(0)
 
-        update_all = np.array(update_new) + (self.update_prev * self.momentum)
+        update_all = np.expand_dims(np.array(update_new), axis=1) + (self.update_prev * self.momentum)
         self.weight_m = self.weight_m + update_all
         # self.weight_m = np.clip(self.weight_m, 0, 1)
 

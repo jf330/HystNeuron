@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 def quality_test(datamaker, pre_syn):
     background = 100
     epochs = 100
+    datamaker.bg_freq_rate = 0.5
 
     responses = [1,2]
     # responses = [1,2,3]
@@ -21,15 +22,18 @@ def quality_test(datamaker, pre_syn):
     # fea_3_correct = []
 
     # x_axis = [0]
-    x = np.linspace(0, 1, 21)
+    x = np.linspace(0, 1, 3)
     x_axis = x.tolist()
+
+    a = 0.5
 
     for s in x_axis:
 
-        neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s)
+        neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s, a=a)
 
-        feature_list = np.load("/Users/jf330/new_results/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
-        neuron_A.in_weights = np.load("/Users/jf330/new_results/HystNeuron/weights_N_{}_Eta_{}_A_0.4_noisy.npy".format(pre_syn, s))
+        # feature_list = np.load("/Users/jf330/newest_results/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
+        feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
+        neuron_A.in_weights = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_noisy.npy".format(pre_syn, s, a))
 
         print("Test for Eta: {}".format(neuron_A.eta))
 
@@ -50,6 +54,7 @@ def quality_test(datamaker, pre_syn):
 
                 neuron_A_out = []
                 neuron_A_state = []
+                neuron_A.clear()
                 for bin in range(0, len(feature_data[1])):
                     # print("Bin {}".format(bin))
 
@@ -79,6 +84,7 @@ def quality_test(datamaker, pre_syn):
 
                 neuron_A_out = []
                 neuron_A_state = []
+                neuron_A.clear()
                 for bin in range(0, len(empty_feature_data[1])):
                     # print("Bin {}".format(bin))
 
@@ -91,7 +97,6 @@ def quality_test(datamaker, pre_syn):
 
                     neuron_A_out.append(out_A)
                     neuron_A_state.append(neuron_A.state)
-
 
                 actual_num_spikes = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__()
 
@@ -159,11 +164,11 @@ def plot_accuracy(fea_null=[], fea_1=[], fea_2=[], fea_3=[]):
 
     error_0 = abs(np.array(fea_null) - 0)
 
-    x = np.linspace(0, 1, 21)
+    x = np.linspace(0, 1, 3)
     x_axis = x.tolist()
 
     sum_error = []
-    for i in range(0, 21):
+    for i in range(0, 3):
         # sum_error.append(error_0[i] + error_1[i] + error_2[i] + error_3[i])
         sum_error.append(error_0[i] + error_1[i] + error_2[i])
 

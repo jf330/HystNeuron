@@ -12,8 +12,8 @@ def quality_test(datamaker, pre_syn, a=0.5, iter=11):
     cwd = os.path.dirname(__file__)
     plotting = False
 
-    responses = [1,2]
-    # responses = [1,2,3]
+    responses = [1, 2]
+    # responses = [1, 2, 3]
 
     fea_1 = []
     fea_2 = []
@@ -31,12 +31,13 @@ def quality_test(datamaker, pre_syn, a=0.5, iter=11):
     for s in x_axis:
 
         neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s, a=a)
+        # neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s, b=a)
 
-        # neuron_A.weight_m = np.load("/Users/jf330/newest_results/weights_N_{}_Eta_{}_A_{}_noisy_small1.npy".format(pre_syn, s, a))
-        # feature_list = np.load("/Users/jf330/newest_results/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
+        neuron_A.weight_m = np.load("/Users/jf330/results2/weights_N_{}_Eta_{}_A_{}_good.npy".format(pre_syn, s, a))
+        feature_list = np.load("/Users/jf330/new_results2/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
-        neuron_A.weight_m = np.load("/Users/jf330/kent_git/HystNeuron/results/weights_N_{}_Eta_{}_A_{}_fixed.npy".format(pre_syn, s, a))
-        feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
+        # neuron_A.weight_m = np.load("/Users/jf330/kent_git/HystNeuron/new_results/weights_N_{}_Eta_{}_A_{}_good.npy".format(pre_syn, s, a))
+        # feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
         print("Test for Eta: {}, A: {}".format(neuron_A.eta, neuron_A.a))
 
@@ -222,9 +223,11 @@ def plot_heatmap(a, eta, results):
             text = ax.text(j, i, np.around(results[i][j], decimals=2),
                            ha="center", va="center", color="w")
     ax.set_title("Classification accuracy (alpha/eta)")
+    # ax.set_title("Classification accuracy (beta/eta)")
     fig.tight_layout()
 
     plt.ylabel('alpha')
+    # plt.ylabel('beta')
     plt.xlabel('eta')
 
     plt.show()

@@ -121,8 +121,8 @@ def synt_input(datamaker):
     delta_state = []
     i = 0
     while i < data[0].__len__():
-        sim = np.where(data[:,i] >= 1)[0]
-        print("Clock: {}, inputs: {}".format(i,sim))
+        sim = np.where(data[:, i] >= 1)[0]
+        print("Clock: {}, inputs: {}".format(i, sim))
 
         if sim.size != 0:
             hyst_model.event_input(x=sim, y=np.zeros(sim.__len__()).tolist(), values=np.ones_like(sim))
@@ -145,8 +145,8 @@ def synt_input(datamaker):
 def simple_input():
     hyst_model = HystNeuron(pre_x=1, pre_y=1, omega_rate=-1)
     T = 40
-    data = np.zeros((1,T))
-    data[0,10] = 1.1
+    data = np.zeros((1, T))
+    data[0, 10] = 1.1
 
     delta_state = []
     state = []

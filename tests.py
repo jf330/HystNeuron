@@ -22,7 +22,6 @@ def aedat_input():
     np.save("/Users/jf330/data_ibm.npy", data)
     # data = np.load("/Users/jf330/data_ibm.npy")
 
-
     timepoints = np.rint(data[2, :] * 1000)
     start = timepoints[0].astype(int)
     timepoints = (timepoints - start).astype(int)
@@ -33,7 +32,6 @@ def aedat_input():
 
     print("Events: {}".format(x.__len__()))
 
-
     # labels = np.zeros(timepoints.__len__())
     labels = np.zeros(timepoints[-1]-timepoints[0])
     with open('/Users/jf330/Downloads/DvsGesture/user01_natural_labels.csv', 'rt')as f:
@@ -42,7 +40,7 @@ def aedat_input():
         for row in data_csv:
             if i != 0:
                 labels[int(row[1])-start:int(row[2])-start] = int(row[0])
-            i+=1
+            i += 1
 
     hyst_model = HystNeuron(pre_x=240, pre_y=128)
 
@@ -81,7 +79,7 @@ def cont_current_input():
 
     T = 200
     current = 0.19
-    time = np.array(range(0,T))
+    time = np.array(range(0, T))
     state = []
     delta_state = []
     i = 0
@@ -252,8 +250,8 @@ def synt_train(datamaker, eta=-1, a=-1):
     plotting = False
     cwd = os.path.dirname(__file__)
 
-    datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
-    # np.save(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
+    # datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
+    np.save(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
 
     if eta < 0 and a < 0:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
@@ -307,19 +305,19 @@ def synt_train(datamaker, eta=-1, a=-1):
                 desired_state[index[count]:index[count] + T_fea_local] = 1
             elif fea_order[count] == 1:
                 desired_state[index[count]:index[count] + T_fea_local] = 2
-            # elif fea_order[count] == 2:
-            #     desired_state[index[count]:index[count] + T_fea_local] = 3
-            # elif fea_order[count] == 3:
-            #     desired_state[index[count]:index[count] + T_fea_local] = 4
+            elif fea_order[count] == 2:
+                desired_state[index[count]:index[count] + T_fea_local] = 3
+            elif fea_order[count] == 3:
+                desired_state[index[count]:index[count] + T_fea_local] = 4
             # elif fea_order[count] == 4:
             #     desired_state[index[count]:index[count] + T_fea_local] = 5
 
             index += np.rint(T_fea_local).astype(int)
             count += 1
 
-        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
-        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
-                         # + n_fea_occur[3] * 4 + n_fea_occur[4] * 5
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
+        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4
+        # + n_fea_occur[4] * 5
 
         # error, error_trace = trainer.calc_integrals_synt(neuron_A.K, desired_state, neuron_A_state, fea_order, time_occur, datamaker)
         error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)

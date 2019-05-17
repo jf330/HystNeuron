@@ -3,7 +3,7 @@ import numpy as np
 
 class HystNeuron:
 
-    def __init__(self, h=1000, K=1, eta=0.75, a=0.5, b=0.5, omega_rate=0.02, pre_x=1, pre_y=1):
+    def __init__(self, h=2000, K=1, eta=0.9, a=0.2, b=0.5, omega_rate=0.02, pre_x=1, pre_y=1):
 
         ### ODEs parameters
         self.h = h
@@ -52,13 +52,13 @@ class HystNeuron:
         self.state = self.state - delta_state
 
         ### Different differentiable threshold implementations
-        delta_reset = np.heaviside((self.state - self.K), self.K) - self.b * self.reset
+        # delta_reset = np.heaviside((self.state - self.K), self.K) - self.b * self.reset
         # delta_reset = (np.float_power(self.state, self.h) / (np.float_power(self.K, self.h) + np.float_power(self.state, self.h))) - self.b * self.reset
-        # delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) - self.b * self.reset
+        delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) - self.b * self.reset
         # delta_reset = (0.5 * (1 + np.tanh(self.h * (self.state - self.K)))) - self.b * self.reset
 
         self.reset = self.reset + delta_reset
-        self.reset = np.clip(self.reset, 0, 1)
+        # self.reset = np.clip(self.reset, 0, 1)
 
         return delta_state
 

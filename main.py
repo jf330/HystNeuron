@@ -1,5 +1,6 @@
 import tests
 import utils.accuracy_tests
+import utils.other_tests
 from utils.datamaker import Datamaker
 
 import matplotlib.pyplot as plt
@@ -14,10 +15,10 @@ def main(
 ):
     # with np.errstate(divide='ignore'): # Ignore overflow, divide by 0 etc. warning messages
 
-    n = 500  # Number of neurons
+    n = 50  # Number of neurons
     dt = 0.001  # Bin length (s)
     duration = 0.1  # Trial duration background (s)
-    n_fea = 4  # Total number of features and distractors
+    n_fea = 2  # Total number of features and distractors
     cf_mean = 2  # Mean number of occurrences for each feature
     T_fea = 0.05  # Base feature duration (s)
     fr = 5  # Background spiking frequency (Hz)
@@ -38,6 +39,8 @@ def main(
         tests.synt_train_many(datamaker, iterations)
     elif test_type == "synt_train":
         tests.synt_train(datamaker)
+    elif test_type == "synt_train_Tempotron":
+        utils.other_tests.synt_train_Tempotron(datamaker)
     elif test_type == "synt_train_bp":
         tests.synt_train_bp(datamaker)
     elif test_type == "aedat_train":
@@ -46,6 +49,10 @@ def main(
         utils.accuracy_tests.quality_test(datamaker, n)
     elif test_type == "quality_test_heatmap":
         utils.accuracy_tests.quality_test_heatmap(datamaker, iterations)
+    elif test_type == "load_quality_heatmap":
+        utils.accuracy_tests.load_quality_heatmap(datamaker, iterations)
+    elif test_type == "gekko_test":
+        utils.other_tests.gekko_ode_input(datamaker)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 

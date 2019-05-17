@@ -6,6 +6,7 @@ from autograd import grad
 from scipy.sparse import csr_matrix
 import os
 import csv
+import shutil
 
 import matplotlib.pyplot as plt
 #plt.switch_backend("agg")
@@ -110,13 +111,19 @@ def cont_current_input():
 
 
 def synt_input(datamaker):
-    data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=True)
 
     hyst_model = HystNeuron(pre_x=datamaker.n, pre_y=1)
+
+    datamaker.feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
+    hyst_model.weight_m = np.load("/Users/jf330/new_results2/weights_N_{}_Eta_{}_A_{}_good.npy".format(datamaker.n, hyst_model.eta, hyst_model.a))
+
+    datamaker.seed = 0
+    data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=True)
 
     time = np.array(range(0, data[0].__len__()))
     state = []
     delta_state = []
+    reset = []
     i = 0
     while i < data[0].__len__():
         sim = np.where(data[:, i] >= 1)[0]
@@ -125,18 +132,25 @@ def synt_input(datamaker):
         if sim.size != 0:
             hyst_model.event_input(x=sim, y=np.zeros(sim.__len__()).tolist(), values=np.ones_like(sim))
         output = hyst_model.decay_step()
-        delta_state.append(output)
 
+        delta_state.append(output)
+        reset.append(hyst_model.reset)
         state.append(hyst_model.state)
 
         i += 1
 
+    plt.title("Params - h: {}, K: {}, a: {}, b: {}, eta: {}".format(hyst_model.h, hyst_model.K, hyst_model.a, hyst_model.b, hyst_model.eta))
+    plt.ylabel('V(t)')
+    plt.xlabel('time')
+    plt.ylim((0, 1.3))
     plt.plot(state)
-    plt.axhline(y=hyst_model.K, linestyle="--", color="k")
-    plt.show()
+    # plt.axhline(y=hyst_model.K, linestyle="--", color="k")
+    # plt.show()
 
-    plt.plot(delta_state)
+    # plt.plot(delta_state)
+    plt.plot(reset)
     plt.axhline(y=hyst_model.K, linestyle="--", color="k")
+    plt.legend(loc='best')
     plt.show()
 
 
@@ -241,24 +255,24 @@ def synt_train(datamaker, eta=-1, a=-1):
     ### Training setup
     lr = 0.0002
     to_update = 0.2
-    epochs = 20000
+    epochs = 4000
     omega_rate = 0.5
 
     noise = True
     datamaker.bg_freq_rate = 0.5
 
-    plotting = False
+    plotting = True
     cwd = os.path.dirname(__file__)
 
-    # datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
-    np.save(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
+    datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
+    # np.save(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
 
     if eta < 0 and a < 0:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
     else:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, eta=eta, a=a)
 
-    # neuron_A.weight_m = np.load(cwd + "/new_results/weights_N_{}_Eta_{}_A_{}_fixed.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
+    neuron_A.weight_m = np.load(cwd + "/new_results/weights_N_{}_Eta_{}_A_{}_good.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
 
     neuron_A_error = []
     for e in range(0, epochs):

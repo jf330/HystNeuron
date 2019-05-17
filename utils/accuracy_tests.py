@@ -7,7 +7,7 @@ import os
 
 def quality_test(datamaker, pre_syn, a=0.5, iter=11):
     background = 100
-    epochs = 200
+    epochs = 10
     datamaker.bg_freq_rate = 0.5
     cwd = os.path.dirname(__file__)
     plotting = False
@@ -33,7 +33,7 @@ def quality_test(datamaker, pre_syn, a=0.5, iter=11):
         neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s, a=a)
         # neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s, b=a)
 
-        neuron_A.weight_m = np.load("/Users/jf330/results2/weights_N_{}_Eta_{}_A_{}_good.npy".format(pre_syn, s, a))
+        neuron_A.weight_m = np.load("/Users/jf330/new_results2/weights_N_{}_Eta_{}_A_{}_good.npy".format(pre_syn, s, a))
         feature_list = np.load("/Users/jf330/new_results2/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
         # neuron_A.weight_m = np.load("/Users/jf330/kent_git/HystNeuron/new_results/weights_N_{}_Eta_{}_A_{}_good.npy".format(pre_syn, s, a))
@@ -233,7 +233,9 @@ def plot_heatmap(a, eta, results):
     plt.show()
 
 
-def quality_test_heatmap(datamaker, iter):
+def test_quality_heatmap(datamaker, iter):
+    cwd = os.path.dirname(__file__)
+
     a = np.linspace(0, 1, iter)
     eta = np.linspace(0, 1, iter)
 
@@ -242,5 +244,19 @@ def quality_test_heatmap(datamaker, iter):
         print("A: {}".format(i))
         acc = quality_test(datamaker, datamaker.n, i, iter)
         heatmap_results.append(acc)
+
+    np.save(cwd + "/AccData_iter{}_N{}_Nfea{}.npy".format(iter, datamaker.n, datamaker.n_fea), heatmap_results)
+    # heatmap_results = np.load(cwd + "/AccData_iter{}_N{}_Nfea{}.npy".format(iter, datamaker.n, datamaker.n_fea))
+
+    plot_heatmap(a, eta, heatmap_results)
+
+
+def load_quality_heatmap(datamaker, iter):
+    cwd = os.path.dirname(__file__)
+
+    a = np.linspace(0, 1, iter)
+    eta = np.linspace(0, 1, iter)
+
+    heatmap_results = np.load(cwd + "/AccData_iter{}_N{}_Nfea{}.npy".format(iter, datamaker.n, datamaker.n_fea))
 
     plot_heatmap(a, eta, heatmap_results)

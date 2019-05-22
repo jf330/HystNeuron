@@ -22,9 +22,11 @@ def main(
     # if pwd.getpwuid(os.getuid())[0] == "jf330":
 
     if path == "default":
-        path = os.getcwd() + "/results/2"
+        cwd = os.path.dirname(__file__)  # Works for PyCharm
+        # cwd = os.getcwd()  # Works for Myrtle
+        path = cwd + "/results"
 
-    n = 100  # Number of neurons
+    n = 50  # Number of neurons
     dt = 0.001  # Bin length (s)
     duration = 0.1  # Trial duration background (s)
     n_fea = 2  # Total number of features and distractors
@@ -43,7 +45,7 @@ def main(
     elif test_type == "simple_input":
         tests.simple_input()
     elif test_type == "synt_input":
-        tests.synt_input(datamaker)
+        tests.synt_input(path, datamaker)
     elif test_type == "synt_train_many":
         tests.synt_train_many(path, datamaker, iterations)
     elif test_type == "synt_train":
@@ -51,11 +53,11 @@ def main(
     elif test_type == "synt_train_Tempotron":
         utils.other_tests.synt_train_Tempotron(path, datamaker)
     elif test_type == "synt_train_bp":
-        tests.synt_train_bp(datamaker)
+        tests.synt_train_bp(path, datamaker)
     elif test_type == "aedat_train":
-        tests.aedat_train(datamaker)
+        tests.aedat_train(path, datamaker)
     elif test_type == "quality_test":
-        utils.accuracy_tests.quality_test(datamaker, n)
+        utils.accuracy_tests.quality_test(path, datamaker, n)
     elif test_type == "gutig_quality_test":
         utils.accuracy_tests.gutig_quality_test(path, datamaker, n)
     elif test_type == "test_quality_heatmap":

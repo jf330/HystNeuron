@@ -138,7 +138,7 @@ def gutig_quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
     return acc
 
 
-def quality_test(datamaker, pre_syn, a=0.5, iter=21):
+def quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
     background = 100
     epochs = 100
     datamaker.bg_freq_rate = 1
@@ -174,8 +174,8 @@ def quality_test(datamaker, pre_syn, a=0.5, iter=21):
         # feature_list = np.load("/Users/jf330/newest_results2/feature_list_N_{}_fea_{}_01dt.npy".format(pre_syn, datamaker.n_fea)).item()
         # feature_list = np.load("/Users/jf330/newest_results2/feature_list_N_{}_fea_{}_new.npy".format(pre_syn, datamaker.n_fea)).item()
 
-        neuron_A.weight_m = np.load("/Users/jf330/local_results/weights/weights_N_{}_Eta_{}_A_{}_state.npy".format(pre_syn, 0, np.around(a, decimals=3)))
-        feature_list = np.load("/Users/jf330/local_results/features/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
+        neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_state.npy".format(pre_syn, 0, np.around(a, decimals=3)))
+        feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
         print("Test for Eta: {}, A: {}".format(neuron_A.eta, neuron_A.a))
 
@@ -393,7 +393,7 @@ def test_quality_heatmap(path, datamaker, iter):
     eta = np.linspace(0, 1, iter)
 
     heatmap_results = []
-    for i in a:  # FIXME do tqdm progress bar
+    for i in a:
         print("A: {}".format(i))
         acc = quality_test(datamaker, datamaker.n, i, iter)
         heatmap_results.append(acc)

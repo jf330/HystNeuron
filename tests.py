@@ -7,6 +7,7 @@ from scipy.sparse import csr_matrix
 import os
 import csv
 import shutil
+from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 #plt.switch_backend("agg")
@@ -110,12 +111,12 @@ def cont_current_input():
     plt.show()
 
 
-def synt_input(datamaker):
+def synt_input(path, datamaker):
 
     hyst_model = HystNeuron(pre_x=datamaker.n, pre_y=1)
 
-    datamaker.feature_list = np.load("/Users/jf330/local_results/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
-    hyst_model.weight_m = np.load("/Users/jf330/new_results2/weights_N_{}_Eta_{}_A_{}_good.npy".format(datamaker.n, hyst_model.eta, hyst_model.a))
+    datamaker.feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
+    hyst_model.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_good.npy".format(datamaker.n, hyst_model.eta, hyst_model.a))
 
     datamaker.seed = 0
     data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=True)
@@ -245,7 +246,8 @@ def synt_train_many(local_path, datamaker, iter):
     eta_range = np.linspace(0.0, 1.0, iter)
     a_range = np.linspace(0.0, 1.0, iter)
 
-    for i in eta_range:  # FIXME do tqdm progress bar
+    # for i in tqdm(eta_range):
+    for i in eta_range:
         print("Eta: {}".format(i))
         for j in a_range:
             print("A: {}".format(j))
@@ -256,7 +258,7 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     ### Training setup
     lr = 0.0002
     to_update = 0.2
-    epochs = 10000
+    epochs = 1
     omega_rate = 0.5
 
     noise = True
@@ -421,7 +423,7 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}.npy".format(neuron_A.pre_syn, neuron_A.eta, np.around(neuron_A.a, decimals=3), readout), neuron_A.weight_m)
 
 
-def aedat_train(datamaker, eta=-1, a=-1):
+def aedat_train(path, datamaker, eta=-1, a=-1):
     # Training setup
     lr = 0.001
     to_update = 0.1
@@ -532,7 +534,7 @@ def aedat_train(datamaker, eta=-1, a=-1):
     # np.save(cwd + "/weights_N_{}_Eta_{}_A_{}_noisy".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a), neuron_A.weight_m)
 
 
-def synt_train_bp(datamaker):
+def synt_train_bp(path, datamaker):
     # Training setup
     lr = 0.0002
     to_update = 0.1

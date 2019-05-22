@@ -263,7 +263,7 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     datamaker.bg_freq_rate = 1
 
     plotting = False
-    readout = "output"
+    readout = "state"
 
     if eta < 0 and a < 0:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
@@ -273,7 +273,7 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     ### Load pre-generated features
     features_path = path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)
     if os.path.isfile(features_path):
-        datamaker.feature_list = np.load(features_path).item()
+        datamaker.feature_list = np.load(features_path, allow_pickle=True).item()
     else:
         np.save(features_path, datamaker.feature_list, allow_pickle=True)
 

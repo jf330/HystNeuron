@@ -52,9 +52,9 @@ class HystNeuron:
         self.state = self.state - delta_state
 
         ### Different differentiable threshold implementations
-        # delta_reset = np.heaviside((self.state - self.K), self.K) - self.b * self.reset
+        delta_reset = np.heaviside((self.state - self.K), self.K) - self.b * self.reset
         # delta_reset = (np.float_power(self.state, self.h) / (np.float_power(self.K, self.h) + np.float_power(self.state, self.h))) - self.b * self.reset
-        delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) - self.b * self.reset
+        # delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) - self.b * self.reset
         # delta_reset = (0.5 * (1 + np.tanh(self.h * (self.state - self.K)))) - self.b * self.reset
 
         self.reset = self.reset + delta_reset

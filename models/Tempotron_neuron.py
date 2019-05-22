@@ -46,6 +46,10 @@ class Tempotron:
         self.output_memory = np.zeros(self.memory)
         self.elig = np.zeros((self.pre_syn, self.memory))
 
+        self.kernel_mask = self.kernel()[::-1]
+        # self.kernel_new = self.kernel_simple()[::-1]  # From Delshad et al.
+        self.reset_mask = self.reset()[::-1]
+
     def run(self, input_frame):
 
         self.input_memory = np.insert(self.input_memory, 0, input_frame, axis=1)

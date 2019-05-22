@@ -2,20 +2,29 @@ import tests
 import utils.accuracy_tests
 import utils.other_tests
 from utils.datamaker import Datamaker
+import pwd
+import os
 
 import matplotlib.pyplot as plt
 # plt.switch_backend("agg")
 
 import time
 
+
 def main(
         model_type,
         test_type,
         iterations,
+        path,
 ):
     # with np.errstate(divide='ignore'): # Ignore overflow, divide by 0 etc. warning messages
 
-    n = 50  # Number of neurons
+    # if pwd.getpwuid(os.getuid())[0] == "jf330":
+
+    if path == "default":
+        path = os.path.dirname(__file__) + "/results"
+
+    n = 100  # Number of neurons
     dt = 0.001  # Bin length (s)
     duration = 0.1  # Trial duration background (s)
     n_fea = 2  # Total number of features and distractors
@@ -36,23 +45,25 @@ def main(
     elif test_type == "synt_input":
         tests.synt_input(datamaker)
     elif test_type == "synt_train_many":
-        tests.synt_train_many(datamaker, iterations)
+        tests.synt_train_many(path, datamaker, iterations)
     elif test_type == "synt_train":
-        tests.synt_train(datamaker)
+        tests.synt_train(path, datamaker)
     elif test_type == "synt_train_Tempotron":
-        utils.other_tests.synt_train_Tempotron(datamaker)
+        utils.other_tests.synt_train_Tempotron(path, datamaker)
     elif test_type == "synt_train_bp":
         tests.synt_train_bp(datamaker)
     elif test_type == "aedat_train":
         tests.aedat_train(datamaker)
     elif test_type == "quality_test":
         utils.accuracy_tests.quality_test(datamaker, n)
-    elif test_type == "quality_test_heatmap":
-        utils.accuracy_tests.quality_test_heatmap(datamaker, iterations)
+    elif test_type == "gutig_quality_test":
+        utils.accuracy_tests.gutig_quality_test(path, datamaker, n)
+    elif test_type == "test_quality_heatmap":
+        utils.accuracy_tests.test_quality_heatmap(path, datamaker, iterations)
     elif test_type == "load_quality_heatmap":
-        utils.accuracy_tests.load_quality_heatmap(datamaker, iterations)
+        utils.accuracy_tests.load_quality_heatmap(path, datamaker, iterations)
     elif test_type == "gekko_test":
-        utils.other_tests.gekko_ode_input(datamaker)
+        utils.other_tests.gekko_ode_input(path, datamaker)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -85,6 +96,12 @@ if __name__ == '__main__':
         type=int,
         help='Number of parameter iterations',
     )
+    parser.add_argument(
+        '--path',
+        default='default',
+        type=text_type,
+        help='Default directory path',
+    )
 
     args, unknown = parser.parse_known_args()
     try:
@@ -92,6 +109,7 @@ if __name__ == '__main__':
             args.model_type,
             args.test_type,
             args.iter,
+            args.path,
         )
     except KeyboardInterrupt:
         pass

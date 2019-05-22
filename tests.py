@@ -114,7 +114,7 @@ def synt_input(datamaker):
 
     hyst_model = HystNeuron(pre_x=datamaker.n, pre_y=1)
 
-    datamaker.feature_list = np.load("/Users/jf330/kent_git/HystNeuron/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
+    datamaker.feature_list = np.load("/Users/jf330/local_results/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
     hyst_model.weight_m = np.load("/Users/jf330/new_results2/weights_N_{}_Eta_{}_A_{}_good.npy".format(datamaker.n, hyst_model.eta, hyst_model.a))
 
     datamaker.seed = 0
@@ -241,38 +241,42 @@ def simple_STDP_train():
     plt.show()
 
 
-def synt_train_many(datamaker, iter):
-    params = np.linspace(0, 1, iter)
+def synt_train_many(local_path, datamaker, iter):
+    eta_range = np.linspace(0.0, 1.0, iter)
+    a_range = np.linspace(0.0, 1.0, iter)
 
-    for i in params:  # FIXME do tqdm progress bar
+    for i in eta_range:  # FIXME do tqdm progress bar
         print("Eta: {}".format(i))
-        for j in params:
+        for j in a_range:
             print("A: {}".format(j))
-            synt_train(datamaker, eta=i, a=j)
+            synt_train(local_path, datamaker, eta=0, a=j)
 
 
-def synt_train(datamaker, eta=-1, a=-1):
+def synt_train(path, datamaker, eta=-1, a=-1):
     ### Training setup
     lr = 0.0002
     to_update = 0.2
-    epochs = 4000
+    epochs = 10000
     omega_rate = 0.5
 
     noise = True
-    datamaker.bg_freq_rate = 0.5
+    datamaker.bg_freq_rate = 1
 
-    plotting = True
-    cwd = os.path.dirname(__file__)
+    plotting = False
+    readout = "output"
 
-    datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
-    # np.save(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
+    datamaker.feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
+    # np.save(path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
 
     if eta < 0 and a < 0:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
     else:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, eta=eta, a=a)
 
-    neuron_A.weight_m = np.load(cwd + "/new_results/weights_N_{}_Eta_{}_A_{}_good.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
+    # neuron_A.a = neuron_A.a / 10
+    # neuron_A.b = neuron_A.b / 10
+
+    # neuron_A.weight_m = np.load(path + /"weights/weights_N_{}_Eta_{}_A_{}.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
 
     neuron_A_error = []
     for e in range(0, epochs):
@@ -319,33 +323,35 @@ def synt_train(datamaker, eta=-1, a=-1):
                 desired_state[index[count]:index[count] + T_fea_local] = 1
             elif fea_order[count] == 1:
                 desired_state[index[count]:index[count] + T_fea_local] = 2
-            elif fea_order[count] == 2:
-                desired_state[index[count]:index[count] + T_fea_local] = 3
-            elif fea_order[count] == 3:
-                desired_state[index[count]:index[count] + T_fea_local] = 4
+            # elif fea_order[count] == 2:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 3
+            # elif fea_order[count] == 3:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 4
             # elif fea_order[count] == 4:
             #     desired_state[index[count]:index[count] + T_fea_local] = 5
 
             index += np.rint(T_fea_local).astype(int)
             count += 1
 
-        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
-        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4
+        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4
         # + n_fea_occur[4] * 5
 
-        # error, error_trace = trainer.calc_integrals_synt(neuron_A.K, desired_state, neuron_A_state, fea_order, time_occur, datamaker)
-        error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)
-        # error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_out)
+        if readout == "state":
+            error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)
+            error = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__() - desired_spikes
 
-        error = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__() - desired_spikes
-        # error = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__() - desired_spikes
+            synt_reset = trainer.calc_synt_reset(data, neuron_A.b)
+            neuron_A.feedback_weight_update(neuron_A_state, synt_reset, error, error_trace, to_update=to_update, lr=lr)
+            # neuron_A.feedback_weight_update(neuron_A_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
 
-        # neuron_A.feedback_weight_update(neuron_A_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
-        # neuron_A.feedback_weight_update(neuron_A_out, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
+        elif readout == "output":
+            error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_out)
+            error = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__() - desired_spikes
 
-        synt_reset = trainer.calc_synt_reset(data, neuron_A.b)
-        neuron_A.feedback_weight_update(neuron_A_state, synt_reset, error, error_trace, to_update=to_update, lr=lr)
-        # neuron_A.feedback_weight_update(neuron_A_out, hyst_data, error, error_trace, to_update=to_update, lr=lr)
+            synt_reset = trainer.calc_synt_reset(data, neuron_A.b)
+            neuron_A.feedback_weight_update(neuron_A_out, synt_reset, error, error_trace, to_update=to_update, lr=lr)
+            # neuron_A.feedback_weight_update(neuron_A_out, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
 
         # print("Error: {}".format(error))
         neuron_A_error.append(error)
@@ -409,7 +415,7 @@ def synt_train(datamaker, eta=-1, a=-1):
     print(np.where(np.array(neuron_A_state) >= 1)[0])
 
     ### Save trained weights
-    np.save(cwd + "/new_results/weights_N_{}_Eta_{}_A_{}_good.npy".format(neuron_A.pre_syn, neuron_A.eta, neuron_A.a), neuron_A.weight_m)
+    np.save(path + "weights/weights_N_{}_Eta_{}_A_{}_g_dt01_scaled.npy".format(neuron_A.pre_syn, neuron_A.eta, np.around(neuron_A.a, decimals=3)), neuron_A.weight_m)
 
 
 def aedat_train(datamaker, eta=-1, a=-1):

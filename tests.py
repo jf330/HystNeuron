@@ -265,17 +265,19 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     plotting = False
     readout = "output"
 
+    if eta < 0 and a < 0:
+        neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
+    else:
+        neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, eta=eta, a=a)
+
+    ### Load pre-generated features
     features_path = path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)
     if os.path.isfile(features_path):
         datamaker.feature_list = np.load(features_path).item()
     else:
         np.save(features_path, datamaker.feature_list)
 
-    if eta < 0 and a < 0:
-        neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
-    else:
-        neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, eta=eta, a=a)
-
+    ### Load pre-trained weights
     # neuron_A.weight_m = np.load(path + /"weights/weights_N_{}_Eta_{}_A_{}.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
 
     neuron_A_error = []
@@ -323,19 +325,20 @@ def synt_train(path, datamaker, eta=-1, a=-1):
                 desired_state[index[count]:index[count] + T_fea_local] = 1
             elif fea_order[count] == 1:
                 desired_state[index[count]:index[count] + T_fea_local] = 2
-            # elif fea_order[count] == 2:
-            #     desired_state[index[count]:index[count] + T_fea_local] = 3
-            # elif fea_order[count] == 3:
-            #     desired_state[index[count]:index[count] + T_fea_local] = 4
-            # elif fea_order[count] == 4:
-            #     desired_state[index[count]:index[count] + T_fea_local] = 5
+            elif fea_order[count] == 2:
+                desired_state[index[count]:index[count] + T_fea_local] = 3
+            elif fea_order[count] == 3:
+                desired_state[index[count]:index[count] + T_fea_local] = 4
+            elif fea_order[count] == 4:
+                desired_state[index[count]:index[count] + T_fea_local] = 5
+            elif fea_order[count] == 5:
+                desired_state[index[count]:index[count] + T_fea_local] = 6
 
             index += np.rint(T_fea_local).astype(int)
             count += 1
 
-        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
-        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4
-        # + n_fea_occur[4] * 5
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
+        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4 + n_fea_occur[4] * 5 + n_fea_occur[5] * 6
 
         if readout == "state":
             error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)

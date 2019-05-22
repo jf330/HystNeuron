@@ -265,16 +265,16 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     plotting = False
     readout = "output"
 
-    datamaker.feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
-    # np.save(path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
+    features_path = path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)
+    if os.path.isfile(features_path):
+        datamaker.feature_list = np.load(features_path).item()
+    else:
+        np.save(features_path, datamaker.feature_list)
 
     if eta < 0 and a < 0:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
     else:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, eta=eta, a=a)
-
-    # neuron_A.a = neuron_A.a / 10
-    # neuron_A.b = neuron_A.b / 10
 
     # neuron_A.weight_m = np.load(path + /"weights/weights_N_{}_Eta_{}_A_{}.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
 
@@ -415,7 +415,7 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     print(np.where(np.array(neuron_A_state) >= 1)[0])
 
     ### Save trained weights
-    np.save(path + "weights/weights_N_{}_Eta_{}_A_{}_g_dt01_scaled.npy".format(neuron_A.pre_syn, neuron_A.eta, np.around(neuron_A.a, decimals=3)), neuron_A.weight_m)
+    np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}.npy".format(neuron_A.pre_syn, neuron_A.eta, np.around(neuron_A.a, decimals=3), readout), neuron_A.weight_m)
 
 
 def aedat_train(datamaker, eta=-1, a=-1):

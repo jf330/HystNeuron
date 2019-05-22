@@ -207,7 +207,6 @@ def synt_train_Tempotron(path, datamaker):
         # neuron_A.feedback_weight_update(neuron_A_out, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
 
         neuron_A.feedback_weight_update(neuron_A_state, data, error, error_trace, to_update=to_update, lr=lr)
-        # neuron_A.feedback_weight_update(neuron_A_out, eligibility, error, error_trace, to_update=to_update, lr=lr)
 
         # print("Error: {}".format(error))
         neuron_A_error.append(error)

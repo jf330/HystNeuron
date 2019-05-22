@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6a072c3d-a18d-46bc-b525-34af36d6a427" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -22,7 +21,7 @@
     <SUITE FILE_PATH="coverage/diff_neuron$cont_curr.coverage" NAME="cont_curr Coverage Results" MODIFIED="1556744475748" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/HystNeuron$quality_test.coverage" NAME="quality_test Coverage Results" MODIFIED="1558446158613" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/HystNeuron$synt_input.coverage" NAME="synt_input Coverage Results" MODIFIED="1558446878549" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/HystNeuron$synt_train.coverage" NAME="synt_train Coverage Results" MODIFIED="1558528149963" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/HystNeuron$synt_train.coverage" NAME="synt_train Coverage Results" MODIFIED="1558530344579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/HystNeuron$synt_input_train.coverage" NAME="synt_train Coverage Results" MODIFIED="1557501498289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/HystNeuron$load_quality_heatmap.coverage" NAME="load_quality_heatmap Coverage Results" MODIFIED="1558002797105" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/HystNeuron$aedat_train.coverage" NAME="aedat_train Coverage Results" MODIFIED="1557425714023" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
@@ -147,8 +146,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5100">
-              <caret line="340" column="143" selection-start-line="340" selection-start-column="143" selection-end-line="340" selection-end-column="143" />
+            <state relative-caret-position="97">
+              <caret line="144" column="22" lean-forward="true" selection-start-line="144" selection-start-column="22" selection-end-line="144" selection-end-column="22" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
                 <marker date="1558529879367" expanded="true" signature="4610:7371" ph="..." />
@@ -160,7 +159,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils/accuracy_tests.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="295">
+            <state relative-caret-position="296">
               <caret line="398" column="35" selection-start-line="398" selection-start-column="35" selection-end-line="398" selection-end-column="35" />
               <folding>
                 <element signature="e#0#41#0" expanded="true" />
@@ -171,11 +170,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="249">
-              <caret line="24" column="54" selection-start-line="24" selection-start-column="54" selection-end-line="24" selection-end-column="54" />
+            <state relative-caret-position="285">
+              <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -183,7 +182,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/utils/other_tests.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="375">
@@ -689,30 +688,31 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="1680" y="-127" width="1920" height="986" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6793003" visible="true" weight="0.1687966" />
-      <window_info id="Structure" order="1" sideWeight="0.32069972" side_tool="true" visible="true" weight="0.1687966" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.67976713" visible="true" weight="0.1687966" />
+      <window_info id="Structure" order="1" sideWeight="0.3202329" side_tool="true" visible="true" weight="0.1687966" />
       <window_info id="Favorites" order="2" sideWeight="0.324031" side_tool="true" weight="0.19169329" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32953367" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.53833866" weight="0.24944071" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.8290735" weight="0.23154363" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.828541" visible="true" weight="0.23154363" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32953367" />
       <window_info anchor="bottom" id="Docker" order="7" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="8" sideWeight="0.4978701" visible="true" weight="0.23266219" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.4978701" weight="0.23266219" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5021299" side_tool="true" visible="true" weight="0.23266219" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.171459" side_tool="true" visible="true" weight="0.23154363" />
       <window_info anchor="bottom" id="Terminal" order="11" />
       <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.49946752" weight="0.34340045" />
-      <window_info anchor="right" x="0" y="0" width="370" height="756" id="Documentation" order="0" sideWeight="0.21720117" side_tool="true" visible="true" weight="0.18210863" />
+      <window_info anchor="right" x="0" y="0" width="370" height="756" id="Documentation" order="0" sideWeight="0.216885" side_tool="true" visible="true" weight="0.18210863" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="1" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="2" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
       <window_info anchor="right" id="JuliaSciView" order="4" weight="0.32967034" />
       <window_info anchor="right" id="Remote Host" order="5" sideWeight="0.496136" weight="0.20340788" />
-      <window_info anchor="right" x="606" y="211" width="467" height="579" id="SciView" order="6" sideWeight="0.7827988" visible="true" weight="0.18210863" />
+      <window_info anchor="right" x="606" y="211" width="467" height="579" id="SciView" order="6" sideWeight="0.78311497" visible="true" weight="0.18210863" />
       <window_info anchor="right" id="Database" order="7" sideWeight="0.49852508" weight="0.32905984" />
     </layout>
   </component>
@@ -809,6 +809,11 @@
           <url>file://$PROJECT_DIR$/utils/other_tests.py</url>
           <line>61</line>
           <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>26</line>
+          <option name="timeStamp" value="59" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -937,43 +942,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utils/accuracy_tests.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="295">
-          <caret line="398" column="35" selection-start-line="398" selection-start-column="35" selection-end-line="398" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#41#0" expanded="true" />
-            <marker date="1558525468080" expanded="true" signature="14088:14089" ph="..." />
-            <marker date="1558525468080" expanded="true" signature="14751:14752" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="138">
           <caret line="97" column="14" lean-forward="true" selection-start-line="97" selection-start-column="14" selection-end-line="97" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="249">
-          <caret line="24" column="54" selection-start-line="24" selection-start-column="54" selection-end-line="24" selection-end-column="54" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5100">
-          <caret line="340" column="143" selection-start-line="340" selection-start-column="143" selection-end-line="340" selection-end-column="143" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <marker date="1558529879367" expanded="true" signature="4610:7371" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -983,6 +955,39 @@
           <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils/accuracy_tests.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="296">
+          <caret line="398" column="35" selection-start-line="398" selection-start-column="35" selection-end-line="398" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#41#0" expanded="true" />
+            <marker date="1558525468080" expanded="true" signature="14088:14089" ph="..." />
+            <marker date="1558525468080" expanded="true" signature="14751:14752" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="97">
+          <caret line="144" column="22" lean-forward="true" selection-start-line="144" selection-start-column="22" selection-end-line="144" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <marker date="1558529879367" expanded="true" signature="4610:7371" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -22,7 +22,7 @@ def main(
     # if pwd.getpwuid(os.getuid())[0] == "jf330":
 
     if path == "default":
-        path = os.path.dirname(__file__) + "/results/1"
+        path = os.getcwd() + "/results/1"
 
     n = 500  # Number of neurons
     dt = 0.001  # Bin length (s)

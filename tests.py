@@ -325,20 +325,20 @@ def synt_train(path, datamaker, eta=-1, a=-1):
                 desired_state[index[count]:index[count] + T_fea_local] = 1
             elif fea_order[count] == 1:
                 desired_state[index[count]:index[count] + T_fea_local] = 2
-            elif fea_order[count] == 2:
-                desired_state[index[count]:index[count] + T_fea_local] = 3
-            elif fea_order[count] == 3:
-                desired_state[index[count]:index[count] + T_fea_local] = 4
-            elif fea_order[count] == 4:
-                desired_state[index[count]:index[count] + T_fea_local] = 5
-            elif fea_order[count] == 5:
-                desired_state[index[count]:index[count] + T_fea_local] = 6
+            # elif fea_order[count] == 2:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 3
+            # elif fea_order[count] == 3:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 4
+            # elif fea_order[count] == 4:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 5
+            # elif fea_order[count] == 5:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 6
 
             index += np.rint(T_fea_local).astype(int)
             count += 1
 
-        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
-        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4 + n_fea_occur[4] * 5 + n_fea_occur[5] * 6
+        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4 + n_fea_occur[4] * 5 + n_fea_occur[5] * 6
 
         if readout == "state":
             error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)

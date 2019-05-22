@@ -275,7 +275,7 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     if os.path.isfile(features_path):
         datamaker.feature_list = np.load(features_path).item()
     else:
-        np.save(features_path, datamaker.feature_list, allow_pickle=False)
+        np.save(features_path, datamaker.feature_list, allow_pickle=True)
 
     ### Load pre-trained weights
     # neuron_A.weight_m = np.load(path + /"weights/weights_N_{}_Eta_{}_A_{}.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))

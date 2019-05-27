@@ -19,20 +19,30 @@ def gekko_ode_input(path, datamaker):
     h = 2000
     K = 1
     eta = 0.9
+    # a = 0.2
+    # b = 0.5
+    # d = 1
     a = 0.2
     b = 0.5
+    d = 10
 
-    weight_m = np.load(path + "/weights_N_{}_Eta_{}_A_{}_good.npy".format(datamaker.n, eta, a))
+    weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_output.npy".format(datamaker.n, eta, a))
+
+    a = 0.2/2
+    b = 0.5/2
 
     ### Spatio-temporal inputs
     datamaker.seed = 0
     data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise)
 
-    input_data = np.sum(weight_m * data, axis=0)
-    print(input_data[35:45])
+    # input_data = np.sum(weight_m * data, axis=0)
+    # print(input_data[35:45])
     # input_data[39] = 0.8
-    time = input_data.__len__()
-
+    # time = input_data.__len__()
+    # time = 100
+    time = 100*2
+    input_data = np.zeros(time)
+    input_data[1] = 1.3
     m.time = np.linspace(0, time-1, time)  # time points
     u = m.Param(value=input_data)
 
@@ -45,8 +55,8 @@ def gekko_ode_input(path, datamaker):
     )
 
     m.Equation(
-        X.dt() == ((V ** h) / (K ** h + V ** h)) - b * X
-        # X.dt() == ( / (np.power(K, h) + np.power(V, h))) - b * X
+        X.dt() == ((V ** h) / (K ** h + V ** h)) * d - b * X
+        # X.dt() == (np.power(V, h) / (np.power(K, h) + np.power(V, h))) - b * X
         # X.dt() == (0.5 * (1 + np.tanh(h * (V - K)))) - b * X
     )
 

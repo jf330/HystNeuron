@@ -3,7 +3,7 @@ import numpy as np
 
 class HystNeuron:
 
-    def __init__(self, h=2000, K=1, eta=0.9, a=0.2, b=0.5, omega_rate=0.02, pre_x=1, pre_y=1):
+    def __init__(self, h=2000, K=1, eta=0.9, a=0.2, b=0.5, d=1, omega_rate=0.02, pre_x=1, pre_y=1):
 
         ### ODEs parameters
         self.h = h
@@ -12,6 +12,7 @@ class HystNeuron:
         self.eta = eta
         self.a = a
         self.b = b
+        self.d = d
 
         ### Neuron state variables
         self.state = 0.0
@@ -48,14 +49,14 @@ class HystNeuron:
 
     def decay_step(self):
         ### State decay function  FIXME Should delta_state or delta_reset be calculated first
-        delta_state = (self.reset * self.eta * self.state) + ((1 - self.eta) * self.a * self.state)
+        delta_state = (self.reset/15 * self.eta * self.state) + ((1 - self.eta) * self.a * self.state)
         self.state = self.state - delta_state
 
         ### Different differentiable threshold implementations
-        delta_reset = np.heaviside((self.state - self.K), self.K) - self.b * self.reset
-        # delta_reset = (np.float_power(self.state, self.h) / (np.float_power(self.K, self.h) + np.float_power(self.state, self.h))) - self.b * self.reset
-        # delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) - self.b * self.reset
-        # delta_reset = (0.5 * (1 + np.tanh(self.h * (self.state - self.K)))) - self.b * self.reset
+        delta_reset = np.heaviside((self.state - self.K), self.K) * self.d - self.b * self.reset
+        # delta_reset = (np.float_power(self.state, self.h) / (np.float_power(self.K, self.h) + np.float_power(self.state, self.h))) * self.d  - self.b * self.reset
+        # delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) * self.d  - self.b * self.reset
+        # delta_reset = (0.5 * (1 + np.tanh(self.h * (self.state - self.K)))) * self.d  - self.b * self.reset
 
         self.reset = self.reset + delta_reset
         # self.reset = np.clip(self.reset, 0, 1)

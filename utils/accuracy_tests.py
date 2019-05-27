@@ -143,38 +143,45 @@ def quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
     epochs = 100
     datamaker.bg_freq_rate = 1
     cwd = os.path.dirname(__file__)
-    plotting = True
+    plotting = False
 
-    responses = [1, 2]
+    responses = [3, 4]
     # responses = [1, 2, 3]
+    # responses = [1,1,1,1,1]
     # responses = [1, 2, 3, 4]
+    # responses = [1, 2, 3, 4, 5, 6]
 
     fea_1 = []
     fea_2 = []
     # fea_3 = []
     # fea_4 = []
+    # fea_5 = []
+    # fea_6 = []
     fea_null = []
 
     fea_1_correct = []
     fea_2_correct = []
     # fea_3_correct = []
     # fea_4_correct = []
+    # fea_5_correct = []
+    # fea_6_correct = []
 
     # x_axis = [0]
-    x = np.linspace(0.7, 1, iter)
+    x = np.linspace(0, 1, iter)
     # x = np.linspace(0, 1, iter)
     x_axis = x.tolist()
 
-    # for s in x_axis:
-    for a in x_axis:
-        neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=0, a=a)
-        # neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s, a=a)
+    for s in x_axis:
+    # for a in x_axis:
+    #     neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=0, a=a)
+        neuron_A = HystNeuron(pre_x=pre_syn, pre_y=1, eta=s, a=a)
 
         # neuron_A.weight_m = np.load("/Users/jf330/newest_results2/weights_N_{}_Eta_{}_A_{}_newest.npy".format(pre_syn, s, a))
         # feature_list = np.load("/Users/jf330/newest_results2/feature_list_N_{}_fea_{}_01dt.npy".format(pre_syn, datamaker.n_fea)).item()
         # feature_list = np.load("/Users/jf330/newest_results2/feature_list_N_{}_fea_{}_new.npy".format(pre_syn, datamaker.n_fea)).item()
 
-        neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_state.npy".format(pre_syn, 0, np.around(a, decimals=3)))
+        # neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_output.npy".format(pre_syn, 0, np.around(a, decimals=3)))
+        neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_output.npy".format(pre_syn, s, a))
         feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
         print("Test for Eta: {}, A: {}".format(neuron_A.eta, neuron_A.a))
@@ -211,8 +218,8 @@ def quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
                     neuron_A_out.append(out_A)
                     neuron_A_state.append(neuron_A.state)
 
-                actual_num_spikes = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__()
-                # actual_num_spikes = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__()
+                # actual_num_spikes = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__()
+                actual_num_spikes = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__()
 
                 fea_responses.append(actual_num_spikes)
                 if actual_num_spikes == desired_spikes:
@@ -243,8 +250,8 @@ def quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
                     neuron_A_out.append(out_A)
                     neuron_A_state.append(neuron_A.state)
 
-                actual_num_spikes = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__()
-                # actual_num_spikes = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__()
+                # actual_num_spikes = np.where(np.array(neuron_A_state) >= neuron_A.K)[0].__len__()
+                actual_num_spikes = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__()
 
                 null_responses.append(actual_num_spikes)
 
@@ -268,6 +275,8 @@ def quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
         fea_2.append(resp_dict["feature_1"])
         # fea_3.append(resp_dict["feature_2"])
         # fea_4.append(resp_dict["feature_3"])
+        # fea_5.append(resp_dict["feature_4"])
+        # fea_6.append(resp_dict["feature_5"])
 
         fea_null.append(sum(null_spike_sum)/(responses.__len__() * epochs))
 
@@ -275,20 +284,29 @@ def quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
         fea_2_correct.append(error_dict["feature_1"])
         # fea_3_correct.append(error_dict["feature_2"])
         # fea_4_correct.append(error_dict["feature_3"])
+        # fea_5_correct.append(error_dict["feature_4"])
+        # fea_6_correct.append(error_dict["feature_5"])
 
-    print(fea_null)
-    print(fea_1)
-    print(fea_2)
-    # print(fea_3)
-    # print(fea_4)
+    print("Resp null {}".format(fea_null))
+    print("Resp Fea 1 {}".format(fea_1))
+    print("Resp Fea 2 {}".format(fea_2))
+    # print("Resp Fea 3 {}".format(fea_3))
+    # print("Resp Fea 4 {}".format(fea_4))
+    # print("Resp Fea 3 {}".format(fea_5))
+    # print("Resp Fea 4 {}".format(fea_6))
 
-    print(fea_1_correct)
-    print(fea_2_correct)
-    # print(fea_3_correct)
-    # print(fea_4_correct)
+    print("Fea 1 acc. {}".format(fea_1_correct))
+    print("Fea 2 acc. {}".format(fea_2_correct))
+    # print("Fea 3 acc. {}".format(fea_3_correct))
+    # print("Fea 4 acc. {}".format(fea_4_correct))
+    # print("Fea 3 acc. {}".format(fea_5_correct))
+    # print("Fea 4 acc. {}".format(fea_6_correct))
 
     acc = (np.array(fea_1_correct) + np.array(fea_2_correct)) / 2
+    # acc = (np.array(fea_1_correct) + np.array(fea_2_correct) + np.array(fea_3_correct)) / 3
     # acc = (np.array(fea_1_correct) + np.array(fea_2_correct) + np.array(fea_3_correct) + np.array(fea_4_correct)) / 4
+    # acc = (np.array(fea_1_correct) + np.array(fea_2_correct) + np.array(fea_3_correct) + np.array(fea_4_correct) + np.array(fea_5_correct)) / 5
+    # acc = (np.array(fea_1_correct) + np.array(fea_2_correct) + np.array(fea_3_correct) + np.array(fea_4_correct) + np.array(fea_5_correct) + np.array(fea_6_correct)) / 6
     print("Acc: {}, for a: {}".format(acc, neuron_A.a))
 
     if plotting:
@@ -311,9 +329,9 @@ def quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
 
 def plot_accuracy(fea_null=[], fea_1=[], fea_2=[], fea_3=[], fea_4=[]):
 
-    # error_4 = abs(np.array(fea_4) - 3)
+    error_4 = abs(np.array(fea_4) - 3)
 
-    # error_3 = abs(np.array(fea_3) - 3)
+    error_3 = abs(np.array(fea_3) - 3)
 
     error_2 = abs(np.array(fea_2) - 2)
 
@@ -331,15 +349,15 @@ def plot_accuracy(fea_null=[], fea_1=[], fea_2=[], fea_3=[], fea_4=[]):
         sum_error.append(error_0[i] + error_1[i] + error_2[i])
 
     # plt.scatter(x_axis, fea_4, color="yellow", marker="x")
-    # plt.scatter(x_axis, fea_3, color="green", marker="x")
+    plt.scatter(x_axis, fea_3, color="green", marker="x")
     plt.scatter(x_axis, fea_2, color="blue", marker="x")
     plt.scatter(x_axis, fea_1, color="red", marker="x")
     plt.scatter(x_axis, fea_null, color="black", marker="x")
 
     plt.axhline(y=1, linestyle="--", color="red")
     plt.axhline(y=2, linestyle="--", color="blue")
-    # plt.axhline(y=3, linestyle="--", color="green")
-    # plt.axhline(y=3, linestyle="--", color="yellow")
+    plt.axhline(y=3, linestyle="--", color="green")
+    # plt.axhline(y=4, linestyle="--", color="yellow")
 
     plt.axhline(y=0, linestyle="--", color="k")
 
@@ -395,7 +413,7 @@ def test_quality_heatmap(path, datamaker, iter):
     heatmap_results = []
     for i in a:
         print("A: {}".format(i))
-        acc = quality_test(datamaker, datamaker.n, i, iter)
+        acc = quality_test(path, datamaker, datamaker.n, np.around(i, decimals=3), iter)
         heatmap_results.append(acc)
 
     np.save(path + "/AccData_iter{}_N{}_Nfea{}_new.npy".format(iter, datamaker.n, datamaker.n_fea), heatmap_results)

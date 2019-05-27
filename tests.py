@@ -116,18 +116,26 @@ def synt_input(path, datamaker):
     hyst_model = HystNeuron(pre_x=datamaker.n, pre_y=1)
 
     datamaker.feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
-    hyst_model.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_good.npy".format(datamaker.n, hyst_model.eta, hyst_model.a))
+    hyst_model.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_output.npy".format(datamaker.n, hyst_model.eta, hyst_model.a))
 
     datamaker.seed = 0
+    datamaker.bg_freq_rate = 0
     data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=True)
+
+    data_kron = np.kron(data, [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+    hyst_model.a = hyst_model.a/15
+    hyst_model.b = hyst_model.b/15
+    hyst_model.d = hyst_model.d/15
 
     time = np.array(range(0, data[0].__len__()))
     state = []
     delta_state = []
     reset = []
     i = 0
-    while i < data[0].__len__():
-        sim = np.where(data[:, i] >= 1)[0]
+    # while i < data[0].__len__():
+    while i < data_kron[0].__len__():
+        # sim = np.where(data[:, i] >= 1)[0]
+        sim = np.where(data_kron[:, i] >= 1)[0]
         print("Clock: {}, inputs: {}".format(i, sim))
 
         if sim.size != 0:
@@ -140,7 +148,7 @@ def synt_input(path, datamaker):
 
         i += 1
 
-    plt.title("Params - h: {}, K: {}, a: {}, b: {}, eta: {}".format(hyst_model.h, hyst_model.K, hyst_model.a, hyst_model.b, hyst_model.eta))
+    plt.title("Params - h: {}, K: {}, a: {}, b: {}, d:{}, eta: {}".format(hyst_model.h, hyst_model.K, hyst_model.a, hyst_model.b, hyst_model.d, hyst_model.eta))
     plt.ylabel('V(t)')
     plt.xlabel('time')
     plt.ylim((0, 1.3))
@@ -256,16 +264,16 @@ def synt_train_many(local_path, datamaker, iter):
 
 def synt_train(path, datamaker, eta=-1, a=-1):
     ### Training setup
-    lr = 0.0002
+    lr = 0.0001
     to_update = 0.2
-    epochs = 1
-    omega_rate = 0.5
+    epochs = 25000
+    omega_rate = 0.8
 
     noise = True
     datamaker.bg_freq_rate = 1
 
-    plotting = False
-    readout = "state"
+    plotting = True
+    readout = "output"
 
     if eta < 0 and a < 0:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)

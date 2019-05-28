@@ -66,6 +66,8 @@ def main(
         utils.accuracy_tests.load_quality_heatmap(path, datamaker, iterations)
     elif test_type == "gekko_test":
         utils.other_tests.gekko_ode_input(path, datamaker)
+    elif test_type == "gekko_ode_train":
+        utils.other_tests.gekko_ode_train(path, datamaker)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 

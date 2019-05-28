@@ -266,7 +266,7 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     ### Training setup
     lr = 0.0001
     to_update = 0.2
-    epochs = 25000
+    epochs = 1000
     omega_rate = 0.8
 
     noise = True
@@ -288,7 +288,7 @@ def synt_train(path, datamaker, eta=-1, a=-1):
         np.save(features_path, datamaker.feature_list, allow_pickle=True)
 
     ### Load pre-trained weights
-    # neuron_A.weight_m = np.load(path + /"weights/weights_N_{}_Eta_{}_A_{}.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
+    # neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
 
     neuron_A_error = []
     for e in range(0, epochs):

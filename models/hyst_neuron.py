@@ -98,8 +98,8 @@ class HystNeuron:
         update_new = []
         for i in range(0, len(self.weight_m)):
             if i in most_elig_syn:
-        #         update_new.append(error * -lr)
-        #         update_new.append(-elig_sum[i] * lr)
+                # update_new.append(error * -lr)
+                # update_new.append(-elig_sum[i] * lr)
 
                 if error > 0:
                     update_new.append(-lr)

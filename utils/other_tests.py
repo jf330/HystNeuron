@@ -11,7 +11,7 @@ import utils.training as trainer
 import utils.plotting as myplt
 
 
-def train_matlab(path, datamaker, eta=-1, a=-1):
+def train_matlab(path, datamaker):
     ### Training setup
     lr = 0.001
     to_update = 0.2
@@ -20,7 +20,7 @@ def train_matlab(path, datamaker, eta=-1, a=-1):
 
     noise = False
     datamaker.bg_freq_rate = 1
-    plotting = True
+    plotting = False
     readout = "output"
 
     eng = matlab.engine.start_matlab()
@@ -52,13 +52,13 @@ def train_matlab(path, datamaker, eta=-1, a=-1):
         data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, fea_mode=3)
         for neur_idx in range(0, datamaker.n):
             input_data = weight_m[neur_idx][0] * data[neur_idx]
-            sio.savemat("/Users/jf330/Desktop/matlab_data/N_" + str(datamaker.n) + "_weight_inputs_" + str(neur_idx) + ".mat",
+            sio.savemat(path + "/matlab_data/N_" + str(datamaker.n) + "_weight_inputs_" + str(neur_idx) + ".mat",
                         {"data": abs(input_data[np.where(input_data != 0)])})
-            sio.savemat("/Users/jf330/Desktop/matlab_data/N_" + str(datamaker.n) + "_time_inputs_" + str(neur_idx) + ".mat",
+            sio.savemat(path + "/matlab_data/N_" + str(datamaker.n) + "_time_inputs_" + str(neur_idx) + ".mat",
                         {"data": np.where(input_data != 0)})
 
         stop_time = len(data[0, :])
-        outputs = eng.sim_matlab(stop_time, datamaker.n, nargout=3)
+        outputs = eng.sim_matlab(stop_time, datamaker.n, path, nargout=3)
 
         V = outputs[0][0]
         R = outputs[0][1]
@@ -128,7 +128,6 @@ def train_matlab(path, datamaker, eta=-1, a=-1):
         plt.show()
 
     np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_cont.npy".format(datamaker.n, eta, np.around(a, decimals=3)), weight_m)
-
 
 
 def run_matlab(path):
@@ -334,6 +333,7 @@ def gekko_ode_train(path, datamaker, eta=-1, a=-1):
     plt.legend(loc='best')
     plt.show()
 
+
 def feedback_weight_update(weight_m, elig_sum, error, to_update=0.2, lr=0.001):
 
     ### Select top x% most eligible pre-syn neurons over whole input
@@ -345,15 +345,15 @@ def feedback_weight_update(weight_m, elig_sum, error, to_update=0.2, lr=0.001):
     update_new = []
     for i in range(0, len(weight_m)):
         if i in most_elig_syn:
-            update_new.append(error * -lr)
+            # update_new.append(error * -lr)
             # update_new.append(-elig_sum[i] * lr)
 
-            # if error > 0:
-            #     update_new.append(-lr)
-            # elif error < 0:
-            #     update_new.append(lr)
-            # else:
-            #     update_new.append(0)
+            if error > 0:
+                update_new.append(-lr)
+            elif error < 0:
+                update_new.append(lr)
+            else:
+                update_new.append(0)
         else:
             update_new.append(0)
 

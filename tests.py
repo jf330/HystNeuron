@@ -278,7 +278,7 @@ def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
     noise = True
     datamaker.bg_freq_rate = 1
 
-    plotting = True
+    plotting = False
     readout = "output"
 
     if eta < 0 and a < 0:

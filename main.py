@@ -2,7 +2,6 @@ import tests
 import utils.accuracy_tests
 import utils.other_tests
 from utils.datamaker import Datamaker
-import pwd
 import os
 
 import matplotlib.pyplot as plt
@@ -18,16 +17,16 @@ def main(
         path,
 ):
     # with np.errstate(divide='ignore'): # Ignore overflow, divide by 0 etc. warning messages
-
     # if pwd.getpwuid(os.getuid())[0] == "jf330":
 
     if path == "default":
-        cwd = os.path.dirname(__file__)  # Works for PyCharm
-        # cwd = os.getcwd()  # Works for Myrtle
-        path = cwd + "/results"
+        # cwd = os.path.dirname(__file__)  # Works for PyCharm
+        cwd = os.getcwd()  # Works for Myrtle
+        path = cwd + "/results/106"
 
+    dt_scale = 1
     n = 100  # Number of neurons
-    dt = 0.001  # Bin length (s)
+    dt = 0.001 * dt_scale  # Bin length (s)
     duration = 0.1  # Trial duration background (s)
     n_fea = 2  # Total number of features and distractors
     cf_mean = 2  # Mean number of occurrences for each feature
@@ -47,9 +46,9 @@ def main(
     elif test_type == "synt_input":
         tests.synt_input(path, datamaker)
     elif test_type == "synt_train_many":
-        tests.synt_train_many(path, datamaker, iterations)
+        tests.synt_train_many(path, datamaker, iterations, dt_scale)
     elif test_type == "synt_train":
-        tests.synt_train(path, datamaker)
+        tests.synt_train(path, datamaker, dt_scale)
     elif test_type == "synt_train_Tempotron":
         utils.other_tests.synt_train_Tempotron(path, datamaker)
     elif test_type == "synt_train_bp":
@@ -58,6 +57,8 @@ def main(
         tests.aedat_train(path, datamaker)
     elif test_type == "quality_test":
         utils.accuracy_tests.quality_test(path, datamaker, n)
+    elif test_type == "learning_curves":
+        utils.accuracy_tests.learning_curves(path, datamaker, n)
     elif test_type == "gutig_quality_test":
         utils.accuracy_tests.gutig_quality_test(path, datamaker, n)
     elif test_type == "test_quality_heatmap":
@@ -68,6 +69,10 @@ def main(
         utils.other_tests.gekko_ode_input(path, datamaker)
     elif test_type == "gekko_ode_train":
         utils.other_tests.gekko_ode_train(path, datamaker)
+    elif test_type == "run_matlab":
+        utils.other_tests.run_matlab(path)
+    elif test_type == "train_matlab":
+        utils.other_tests.train_matlab(path, datamaker)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 

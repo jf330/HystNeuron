@@ -115,6 +115,7 @@ def synt_input(path, datamaker):
 
     hyst_model = HystNeuron(pre_x=datamaker.n, pre_y=1)
 
+
     datamaker.feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
     hyst_model.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_output.npy".format(datamaker.n, hyst_model.eta, hyst_model.a))
 
@@ -122,25 +123,26 @@ def synt_input(path, datamaker):
     datamaker.bg_freq_rate = 0
     data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=True)
 
-    data_kron = np.kron(data, [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
-    hyst_model.a = hyst_model.a/15
-    hyst_model.b = hyst_model.b/15
-    hyst_model.d = hyst_model.d/15
+    scale = [1,0,0]
+    data = np.kron(data, scale)
+    hyst_model.a = hyst_model.a/len(scale)
+    hyst_model.b = hyst_model.b/len(scale)
+    hyst_model.d = hyst_model.d/len(scale)
+    hyst_model.g = hyst_model.g/len(scale)
 
-    time = np.array(range(0, data[0].__len__()))
     state = []
     delta_state = []
     reset = []
     i = 0
-    # while i < data[0].__len__():
-    while i < data_kron[0].__len__():
-        # sim = np.where(data[:, i] >= 1)[0]
-        sim = np.where(data_kron[:, i] >= 1)[0]
+
+    while i < data[0].__len__():
+        sim = np.where(data[:, i] >= 1)[0]
+
         print("Clock: {}, inputs: {}".format(i, sim))
 
+        output = hyst_model.decay_step()
         if sim.size != 0:
             hyst_model.event_input(x=sim, y=np.zeros(sim.__len__()).tolist(), values=np.ones_like(sim))
-        output = hyst_model.decay_step()
 
         delta_state.append(output)
         reset.append(hyst_model.reset)
@@ -165,9 +167,13 @@ def synt_input(path, datamaker):
 
 def simple_input():
     hyst_model = HystNeuron(pre_x=1, pre_y=1, omega_rate=-1)
-    T = 40
+    hyst_model.a = 1
+    hyst_model.b = 0.2
+    hyst_model.eta = 0.9
+
+    T = 100
     data = np.zeros((1, T))
-    data[0, 10] = 1.1
+    data[0, 0] = 1.2
 
     delta_state = []
     state = []
@@ -190,14 +196,14 @@ def simple_input():
 
     plt.axhline(y=hyst_model.K, linestyle="--", color="k")
 
-    # plt.plot(state, label="State")
-    plt.scatter(np.array(range(0, state.__len__())), state, label="State")
+    plt.plot(state, label="State")
+    # plt.scatter(np.array(range(0, state.__len__())), state, label="State", marker="x")
 
-    # plt.plot(reset, label="Reset")
-    plt.scatter(np.array(range(0, reset.__len__())), reset, label="Reset")
+    plt.plot(reset, label="Reset")
+    # plt.scatter(np.array(range(0, reset.__len__())), reset, label="Reset", marker="x")
 
     # plt.plot(delta_state, label="Output")
-    plt.scatter(np.array(range(0, delta_state.__len__())), delta_state, label="Output")
+    # plt.scatter(np.array(range(0, delta_state.__len__())), delta_state, label="Output", marker="x")
 
     plt.legend(loc='best')
     plt.show()
@@ -250,7 +256,7 @@ def simple_STDP_train():
     plt.show()
 
 
-def synt_train_many(local_path, datamaker, iter):
+def synt_train_many(local_path, datamaker, iter, dt_scale):
     eta_range = np.linspace(0.0, 1.0, iter)
     a_range = np.linspace(0.0, 1.0, iter)
 
@@ -259,15 +265,15 @@ def synt_train_many(local_path, datamaker, iter):
         print("Eta: {}".format(i))
         for j in a_range:
             print("A: {}".format(j))
-            synt_train(local_path, datamaker, eta=i, a=j)
+            synt_train(local_path, datamaker, dt_scale, eta=i, a=j)
 
 
-def synt_train(path, datamaker, eta=-1, a=-1):
+def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
     ### Training setup
     lr = 0.0001
     to_update = 0.2
-    epochs = 1000
-    omega_rate = 0.8
+    epochs = 40000
+    omega_rate = 0.3
 
     noise = True
     datamaker.bg_freq_rate = 1
@@ -279,6 +285,11 @@ def synt_train(path, datamaker, eta=-1, a=-1):
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
     else:
         neuron_A = HystNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, eta=eta, a=a)
+
+    # neuron_A.a = neuron_A.a*dt_scale
+    # neuron_A.b = neuron_A.b*dt_scale
+    # neuron_A.d = neuron_A.d*dt_scale
+    # neuron_A.g = neuron_A.g*dt_scale
 
     ### Load pre-generated features
     features_path = path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)
@@ -292,8 +303,14 @@ def synt_train(path, datamaker, eta=-1, a=-1):
 
     neuron_A_error = []
     for e in range(0, epochs):
-        if e % 1000 == 0:
+        if e % 100 == 0:
             print("Epoch {}".format(e))
+            np.save(
+                path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}_Epoch_{}.npy".format(neuron_A.pre_syn, neuron_A.eta,
+                                                                                       np.around(neuron_A.a,
+                                                                                                 decimals=3), readout,
+                                                                                       e), neuron_A.weight_m)
+
             # datamaker.bg_freq_rate += 0.1
 
         ### Init. history arrays
@@ -303,11 +320,6 @@ def synt_train(path, datamaker, eta=-1, a=-1):
         neuron_A.clear()
 
         data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, fea_mode=3)
-
-        # if e == 19999:
-        #     data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=2)
-        # else:
-        #     data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, single_fea=1)
 
         ### Present stimulus
         for bin in range(0, len(data[1])):
@@ -335,10 +347,10 @@ def synt_train(path, datamaker, eta=-1, a=-1):
                 desired_state[index[count]:index[count] + T_fea_local] = 1
             elif fea_order[count] == 1:
                 desired_state[index[count]:index[count] + T_fea_local] = 2
-            # elif fea_order[count] == 2:
-            #     desired_state[index[count]:index[count] + T_fea_local] = 3
+            elif fea_order[count] == 2:
+                desired_state[index[count]:index[count] + T_fea_local] = 3
             # elif fea_order[count] == 3:
-            #     desired_state[index[count]:index[count] + T_fea_local] = 4
+            #     desired_state[index[count]:index[count] + T_fea_local] = 5
             # elif fea_order[count] == 4:
             #     desired_state[index[count]:index[count] + T_fea_local] = 5
             # elif fea_order[count] == 5:
@@ -348,7 +360,8 @@ def synt_train(path, datamaker, eta=-1, a=-1):
             count += 1
 
         desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
-        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4 + n_fea_occur[4] * 5 + n_fea_occur[5] * 6
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
+        # desired_spikes = n_fea_occur[0] * 2 + n_fea_occur[1] * 3 + n_fea_occur[2] * 4 + n_fea_occur[3] * 5
 
         if readout == "state":
             error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)
@@ -360,11 +373,20 @@ def synt_train(path, datamaker, eta=-1, a=-1):
 
         elif readout == "output":
             error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_out)
-            error = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__() - desired_spikes
+            # error = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__() - desired_spikes
+            error = sum(error_trace)
 
             synt_reset = trainer.calc_synt_reset(data, neuron_A.b)
             neuron_A.feedback_weight_update(neuron_A_out, synt_reset, error, error_trace, to_update=to_update, lr=lr)
             # neuron_A.feedback_weight_update(neuron_A_out, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
+
+        elif readout == "reset":
+            error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_reset)
+            error = np.where(np.array(neuron_A_reset) >= neuron_A.K)[0].__len__() - desired_spikes
+
+            synt_reset = trainer.calc_synt_reset(data, neuron_A.b)
+            neuron_A.feedback_weight_update(neuron_A_reset, synt_reset, error, error_trace, to_update=to_update, lr=lr)
+            # neuron_A.feedback_weight_update(neuron_A_reset, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
 
         # print("Error: {}".format(error))
         neuron_A_error.append(error)
@@ -428,7 +450,7 @@ def synt_train(path, datamaker, eta=-1, a=-1):
     print(np.where(np.array(neuron_A_state) >= 1)[0])
 
     ### Save trained weights
-    np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}.npy".format(neuron_A.pre_syn, neuron_A.eta, np.around(neuron_A.a, decimals=3), readout), neuron_A.weight_m)
+    np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}_Epoch_{}.npy".format(neuron_A.pre_syn, neuron_A.eta, np.around(neuron_A.a, decimals=3), readout, e), neuron_A.weight_m)
 
 
 def aedat_train(path, datamaker, eta=-1, a=-1):
@@ -548,13 +570,17 @@ def synt_train_bp(path, datamaker):
     to_update = 0.1
     epochs = 10000
     omega_rate = 0.02
+
     noise = True
-    cwd = os.path.dirname(__file__)
+    datamaker.bg_freq_rate = 1
 
-    # datamaker.feature_list = np.load(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
-    np.save(cwd + "/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
+    plotting = True
+    readout = "output"
 
-    neuron_layer_A = HystLayer(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, n=10)
+    # datamaker.feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)).item()
+    np.save(path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea), datamaker.feature_list)
+
+    neuron_layer_H = HystLayer(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, n=10)
     neuron_O = HystNeuron(omega_rate=omega_rate, pre_x=10, pre_y=1)
 
     neuron_O_error = []
@@ -575,12 +601,18 @@ def synt_train_bp(path, datamaker):
             # print("Clock: {}, inputs: {}".format(bin, simul_events))
 
             if simul_events.size != 0:
-                neuron_layer_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(), values=np.ones_like(simul_events))
-            out_A = neuron_layer_A.decay_step()
+                neuron_layer_H.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(), values=np.ones_like(simul_events))
+            out_H = neuron_layer_H.decay_step()
 
-            simul_events_O = np.where(out_A >= 1)[0]
+            ### SHOULD IT BE A CONSTANT INPUT FLOW TO THE OUTPUT LAYER
+            # simul_events_H = np.where(out_H >= 0)
+            # neuron_O.event_input(x=simul_events_H, y=np.zeros(simul_events_H.__len__()).tolist(), values=np.ones_like(simul_events_H))
+
+            ### OR ONLY WHEN "SPIKING"
+            simul_events_H = np.where(out_H >= 1)[0]
             if simul_events.size != 0:
-                neuron_O.event_input(x=simul_events_O, y=np.zeros(simul_events_O.__len__()).tolist(), values=np.ones_like(simul_events_O))
+                neuron_O.event_input(x=simul_events_H, y=np.zeros(simul_events_H.__len__()).tolist(), values=np.ones_like(simul_events_H))
+
             out_O = neuron_O.decay_step()
 
             neuron_O_state.append(neuron_O.state)
@@ -605,73 +637,75 @@ def synt_train_bp(path, datamaker):
 
         desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
 
-        # error, error_trace = trainer.calc_integrals_synt(neuron_A.K, desired_state, neuron_A_state, fea_order, time_occur, datamaker)
-        error_trace_O = trainer.calc_error(neuron_O.K, desired_state, neuron_O_state)
-        error_O = sum(error_trace_O)
+        if readout == "state":
+            error_trace = trainer.calc_error(neuron_O.K, desired_state, neuron_O_state)
+            error = np.where(np.array(neuron_O_state) >= neuron_O.K)[0].__len__() - desired_spikes
 
-        hyst_data = trainer.calc_synt_reset(data, neuron_O.b)
-        # neuron_O.feedback_weight_update(neuron_O_state, hyst_data, error_O, error_trace_O, to_update=to_update, lr=lr)
-        neuron_O.feedback_weight_update(neuron_O_out, hyst_data, error_O, error_trace_O, to_update=to_update, lr=lr)
-        # neuron_O.feedback_weight_update(neuron_O_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
+
+        elif readout == "output":
+            error_trace = trainer.calc_error(neuron_O.K, desired_state, neuron_O_out)
+            error = np.where(np.array(neuron_O_out) >= neuron_O.K)[0].__len__() - desired_spikes
+
+        # for neuron in neuron_layer_H.neurons:
+
 
         # print("Error: {}".format(error))
-        neuron_O_error.append(error_O)
+        neuron_O_error.append(error)
 
-        error_trace_A = error_trace_O * neuron_O.weight_m
+    if plotting:
+        ### Plot input data raster
+        markers = datamaker.add_marker(time_occur, fea_order, neuron_O.pre_syn - 1, neuron_O.pre_syn / 40)
+        myplt.plot_features(markers, data)
 
-    ### Plot input data raster
-    markers = datamaker.add_marker(time_occur, fea_order, neuron_O.pre_syn - 1, neuron_O.pre_syn / 40)
-    myplt.plot_features(markers, data)
+        ### Plot reaction
+        plt.axhline(y=neuron_O.K, linestyle="--", color="k")
 
-    ### Plot reaction
-    plt.axhline(y=neuron_O.K, linestyle="--", color="k")
+        markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+        for marker in markers:
+            plt.gca().add_patch(marker)
+            plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+            plt.gca().add_patch(marker)
+        plt.plot(neuron_O_out, label="A out")
+        plt.ylabel('O(t)')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
 
-    markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
-    for marker in markers:
-        plt.gca().add_patch(marker)
-        plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
-        plt.gca().add_patch(marker)
-    plt.plot(neuron_O_out, label="A out")
-    plt.ylabel('O(t)')
-    plt.xlabel('Time')
-    plt.legend(loc='best')
-    plt.show()
+        plt.plot(neuron_O_state, label="A state")
+        plt.plot(neuron_O_reset, label="A reset")
+        plt.plot(neuron_O_out, label="A out")
+        plt.axhline(y=neuron_O.K, linestyle="--", color="k")
 
-    plt.plot(neuron_O_state, label="A state")
-    plt.plot(neuron_O_reset, label="A reset")
-    plt.plot(neuron_O_out, label="A out")
-    plt.axhline(y=neuron_O.K, linestyle="--", color="k")
+        markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+        for marker in markers:
+            plt.gca().add_patch(marker)
+            plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+            plt.gca().add_patch(marker)
 
-    markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
-    for marker in markers:
-        plt.gca().add_patch(marker)
-        plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
-        plt.gca().add_patch(marker)
+        plt.ylabel('Neural dynamics')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
 
-    plt.ylabel('Neural dynamics')
-    plt.xlabel('Time')
-    plt.legend(loc='best')
-    plt.show()
+        ### Plot error
+        plt.scatter(np.array(range(0, neuron_O_error.__len__())), neuron_O_error, marker="x", label="Error (A)")
+        # plt.plot(neuron_A_error, label="Error (A)")
+        plt.ylabel('Error')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
 
-    ### Plot error
-    plt.scatter(np.array(range(0, neuron_O_error.__len__())), neuron_O_error, marker="x", label="Error (A)")
-    # plt.plot(neuron_A_error, label="Error (A)")
-    plt.ylabel('Error')
-    plt.xlabel('Time')
-    plt.legend(loc='best')
-    plt.show()
-
-    ### Plot trial error
-    markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
-    for marker in markers:
-        plt.gca().add_patch(marker)
-        plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
-        plt.gca().add_patch(marker)
-    plt.plot(error_trace_O)
-    plt.ylabel('Error')
-    plt.xlabel('Time')
-    plt.legend(loc='best')
-    plt.show()
+        ### Plot trial error
+        # markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+        # for marker in markers:
+        #     plt.gca().add_patch(marker)
+        #     plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+        #     plt.gca().add_patch(marker)
+        # plt.plot(error_trace_O)
+        # plt.ylabel('Error')
+        # plt.xlabel('Time')
+        # plt.legend(loc='best')
+        # plt.show()
 
     print(np.where(np.array(neuron_O_state) >= 1)[0])
 

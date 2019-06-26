@@ -65,13 +65,17 @@ def calc_error(threshold, desired, actual):
             range_len = target_index_end - target_index_start
             segment = np.array(actual[target_index_start:target_index_end])
 
+            ### Single-threshold error
             actual_spikes = np.where(segment >= threshold)[0].__len__()
             error_value = actual_spikes - target_value
 
+            ### Multi-threshold error
+            # actual_spikes = np.where(segment >= target_value)[0].__len__()
+            # error_value = actual_spikes - 1
+
+            ### Supra-threshold integral error
             # actual_output = np.sum(segment[np.where(segment >= threshold)])
             # error_value = actual_output - target_value
-
-            # error_value = abs(error_value) * error_value
 
             if error_value == 0:
                 error[target_index_start:target_index_end] = np.zeros((range_len)).tolist()
@@ -81,7 +85,7 @@ def calc_error(threshold, desired, actual):
 
             target_value = 0
             pattern_on = False
-            # error[bin] = 0å
+            # error[bin] = 0
         if (target == 0) and (target_value == 0):
             if actual[bin] >= threshold:
                 error[bin] = threshold

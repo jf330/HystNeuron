@@ -12,11 +12,12 @@ class HystLayer:
 
         self.history_state = []
         self.history_reset = []
+        self.history_out = []
         self.frame_num = 0
 
-    def event_input(self, x, y):
+    def event_input(self, x, y, values):
         for idx in range(0, len(self.neurons)):
-            self.neurons[idx].event_input(x, y)
+            self.neurons[idx].event_input(x, y, values)
 
     def decay_step(self):
         output = []
@@ -28,9 +29,11 @@ class HystLayer:
             if self.frame_num == 0:
                 self.history_state.append([self.neurons[idx].state])
                 self.history_reset.append([self.neurons[idx].reset])
+                self.history_out.append([self.neurons[idx].out])
             else:
                 self.history_state[idx].append(self.neurons[idx].state)
                 self.history_reset[idx].append(self.neurons[idx].reset)
+                self.history_out[idx].append(self.neurons[idx].out)
 
             self.frame_num += 1
 
@@ -39,6 +42,7 @@ class HystLayer:
     def clear(self):
         self.history_state = []
         self.history_reset = []
+        self.history_out = []
         for neuron in self.neurons:
             neuron.clear()
             self.frame_num = 0

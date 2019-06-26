@@ -3,11 +3,11 @@ import numpy as np
 
 
 class HystLayer:
-    def __init__(self, h=1000, K=1, switch=0.95, a=1, b=0.3, omega_rate=0.5, each_pre_x=1, each_pre_y=1, n=1):
+    def __init__(self, h=300, K=1, eta=0.9, a=0.2, b=0.3, d=1, g=1, omega_rate=0.5, each_pre_x=1, each_pre_y=1, n=1):
         self.n = n
         self.neurons = []
         for count in range(0, self.n):
-            buffer = HystNeuron(h, K, switch, a, b, omega_rate, each_pre_x, each_pre_y)
+            buffer = HystNeuron(h, K, eta, a, b, d, g, omega_rate, each_pre_x, each_pre_y)
             self.neurons.append(buffer)
 
         self.history_state = []
@@ -46,3 +46,6 @@ class HystLayer:
         for neuron in self.neurons:
             neuron.clear()
             self.frame_num = 0
+
+    def lateral_inhib(self):
+        print("TODO")

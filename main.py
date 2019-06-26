@@ -24,6 +24,9 @@ def main(
         cwd = os.getcwd()  # Works for Myrtle
         path = cwd + "/results/106"
 
+    # matlab_root = "/Users/jf330/Desktop/matlab_data/
+    # matlab_root = "/Users/jf330/Desktop/matlab_data/
+
     dt_scale = 1
     n = 100  # Number of neurons
     dt = 0.001 * dt_scale  # Bin length (s)

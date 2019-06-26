@@ -272,7 +272,7 @@ def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
     ### Training setup
     lr = 0.0001
     to_update = 0.2
-    epochs = 40000
+    epochs = 25000
     omega_rate = 0.3
 
     noise = True
@@ -303,15 +303,9 @@ def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
 
     neuron_A_error = []
     for e in range(0, epochs):
-        if e % 100 == 0:
-            print("Epoch {}".format(e))
-            np.save(
-                path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}_Epoch_{}.npy".format(neuron_A.pre_syn, neuron_A.eta,
-                                                                                       np.around(neuron_A.a,
-                                                                                                 decimals=3), readout,
-                                                                                       e), neuron_A.weight_m)
-
-            # datamaker.bg_freq_rate += 0.1
+        # if e % 100 == 0:
+        #     print("Epoch {}".format(e))
+        #     np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}_Epoch_{}.npy".format(neuron_A.pre_syn, neuron_A.eta,np.around(neuron_A.a,decimals=3), readout, e), neuron_A.weight_m)
 
         ### Init. history arrays
         neuron_A_state = []
@@ -347,8 +341,8 @@ def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
                 desired_state[index[count]:index[count] + T_fea_local] = 1
             elif fea_order[count] == 1:
                 desired_state[index[count]:index[count] + T_fea_local] = 2
-            elif fea_order[count] == 2:
-                desired_state[index[count]:index[count] + T_fea_local] = 3
+            # elif fea_order[count] == 2:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 3
             # elif fea_order[count] == 3:
             #     desired_state[index[count]:index[count] + T_fea_local] = 5
             # elif fea_order[count] == 4:
@@ -361,7 +355,8 @@ def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
 
         desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
         # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
-        # desired_spikes = n_fea_occur[0] * 2 + n_fea_occur[1] * 3 + n_fea_occur[2] * 4 + n_fea_occur[3] * 5
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4 + n_fea_occur[4] * 5
 
         if readout == "state":
             error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_state)

@@ -13,25 +13,31 @@ import utils.plotting as myplt
 
 def train_matlab(path, datamaker):
     ### Training setup
-    lr = 0.001
+    # lr = 0.0005
+    lr = 0.002
     to_update = 0.2
-    epochs = 1000
-    omega_rate = 0.5
+    epochs = 1500
+    omega_rate = 0.3
+    momentum = 0.2
 
-    noise = False
+    noise = True
     datamaker.bg_freq_rate = 1
-    plotting = False
+    plotting = True
     readout = "output"
+    matlab_path = path + "/matlab_data/"
 
     eng = matlab.engine.start_matlab()
 
     h = 250
     K = 1
-    eta = 0.5
-    a = 1
-    b = 0.5
+    eta = 0.9
+    a = 0.3
+    b = 0.3
     d = 1
     g = 1
+
+    params = {"a": a, "b": b, "g": g, "d": d, "eta": eta, "K": K, "h": h}
+    sio.savemat(matlab_path + "N_" + str(datamaker.n) + "_params.mat", params)
 
     ### Load pre-generated features
     features_path = path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)
@@ -40,25 +46,35 @@ def train_matlab(path, datamaker):
     else:
         np.save(features_path, datamaker.feature_list, allow_pickle=True)
 
-    ### Load pre-trained weights
-    # weight_m = np.load(path + /"weights/weights_N_{}_Eta_{}_A_{}_cont.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
-    weight_m = np.random.rand(datamaker.n, 1) * omega_rate
+    ### Load pre-trained weights or random init.
+    # weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_cont.npy".format(datamaker.n, eta, np.around(a, decimals=3)))
+    weight_m = np.random.rand(datamaker.n) * omega_rate
+    update_prev = np.zeros((datamaker.n))
 
     neuron_A_error = []
+    fea1_spike_est_arr = []
+    fea2_spike_est_arr = []
+    fea3_spike_est_arr = []
     for e in range(0, epochs):
-        # if e % 1000 == 0:
         print("Epoch {}".format(e))
+
+        if e % 50 == 0:
+            np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Epoch_{}_cont.npy".format(datamaker.n, eta, np.around(a, decimals=3), e), weight_m)
 
         data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, fea_mode=3)
         for neur_idx in range(0, datamaker.n):
-            input_data = weight_m[neur_idx][0] * data[neur_idx]
-            sio.savemat(path + "/matlab_data/N_" + str(datamaker.n) + "_weight_inputs_" + str(neur_idx) + ".mat",
+            input_data = weight_m[neur_idx] * data[neur_idx]
+
+            # matlab_path = matlab_data + "test"
+
+            sio.savemat(matlab_path + "N_" + str(datamaker.n) + "_weight_inputs_" + str(neur_idx) + ".mat",
                         {"data": abs(input_data[np.where(input_data != 0)])})
-            sio.savemat(path + "/matlab_data/N_" + str(datamaker.n) + "_time_inputs_" + str(neur_idx) + ".mat",
+                        # {"data": input_data[np.where(input_data != 0)]})
+            sio.savemat(matlab_path + "N_" + str(datamaker.n) + "_time_inputs_" + str(neur_idx) + ".mat",
                         {"data": np.where(input_data != 0)})
 
         stop_time = len(data[0, :])
-        outputs = eng.sim_matlab(stop_time, datamaker.n, path, nargout=3)
+        outputs = eng.sim_matlab(stop_time, datamaker.n, matlab_path, nargout=2)
 
         V = outputs[0][0]
         R = outputs[0][1]
@@ -66,22 +82,34 @@ def train_matlab(path, datamaker):
         S = outputs[0][3]
         time = outputs[0][4]
         elig = outputs[1][0]
-        spike_est = outputs[2]
+
+        spike_est = np.trapz(S, time)
 
         ### Weight update
         desired_state = np.zeros(len(data[1]))
         count = 0
+        fea1_spike_est = []
+        fea2_spike_est = []
+        fea3_spike_est = []
         index = np.rint(time_occur / datamaker.dt).astype(int)
         while count < len(index):
             fea = datamaker.feature_list['feature_' + str(fea_order[count])]
             T_fea_local = fea[0].size
 
+            s_idx = find_nearest(time, index[count])
+            e_idx = find_nearest(time, index[count] + T_fea_local)
+            fea_spike_integral = np.trapz(S[s_idx:e_idx], time[s_idx:e_idx])
+            # print(f"feature {i}, spike_est {fea_spike_est}")
+
             if fea_order[count] == 0:
                 desired_state[index[count]:index[count] + T_fea_local] = 1
+                fea1_spike_est.append(fea_spike_integral)
             elif fea_order[count] == 1:
                 desired_state[index[count]:index[count] + T_fea_local] = 2
-            # elif fea_order[count] == 2:
-            #     desired_state[index[count]:index[count] + T_fea_local] = 3
+                fea2_spike_est.append(fea_spike_integral)
+            elif fea_order[count] == 2:
+                desired_state[index[count]:index[count] + T_fea_local] = 3
+                fea3_spike_est.append(fea_spike_integral)
             # elif fea_order[count] == 3:
             #     desired_state[index[count]:index[count] + T_fea_local] = 4
             # elif fea_order[count] == 4:
@@ -92,15 +120,43 @@ def train_matlab(path, datamaker):
             index += np.rint(T_fea_local).astype(int)
             count += 1
 
-        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
-        error = spike_est - desired_spikes
-        weight_m = feedback_weight_update(weight_m, elig, error, to_update=to_update, lr=lr)
+        # desired_spikes = n_fea_occur[0] * 1
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
+        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
 
-        print("Error: {}".format(error))
+        error = spike_est - desired_spikes
+
+        update_new = feedback_weight_update(weight_m, elig, error, to_update=to_update, lr=lr)
+
+        update_all = np.array(update_new) + (update_prev * momentum)
+        update_prev = np.array(update_new)
+        weight_m = weight_m + update_all
+        weight_m = np.clip(weight_m, 0, 1)
+
+        print("Error: {}, Desired: {}".format(error, desired_spikes))
         neuron_A_error.append(error)
 
+        if len(fea1_spike_est) != 0:
+            fea1_spike_est_arr.append(sum(fea1_spike_est)/len(fea1_spike_est))
+        else:
+            fea1_spike_est_arr.append(None)
+
+        if len(fea2_spike_est) != 0:
+            fea2_spike_est_arr.append(sum(fea2_spike_est)/len(fea2_spike_est))
+        else:
+            fea2_spike_est_arr.append(None)
+
+        if len(fea3_spike_est) != 0:
+            fea3_spike_est_arr.append(sum(fea3_spike_est)/len(fea3_spike_est))
+        else:
+            fea3_spike_est_arr.append(None)
+
     if plotting:
-        plt.plot(neuron_A_error, label='Train Error')
+        plt.axhline(y=0, linestyle="--", color="k")
+        plt.scatter(np.arange(0, len(neuron_A_error)), neuron_A_error, marker="x", label='Training Error')
+        plt.ylabel('Error')
+        plt.xlabel('Epoch')
+        plt.legend(loc='best')
         plt.show()
 
         ### Plot input data raster
@@ -108,18 +164,27 @@ def train_matlab(path, datamaker):
         myplt.plot_features(markers, data)
 
         ### Plot results
-        plt.title("Params - h: {}, K: {}, a: {}, b: {}, d: {}, eta: {}".format(h, K, a, b, d, eta))
+        plt.title("Params - h: {}, K: {}, a: {}, b: {}, d: {}, g: {}, eta: {}".format(h, K, a, b, d, g, eta))
         markers = datamaker.add_marker(time_occur, fea_order, 1.2, 0.05)
+        i = 0
         for marker in markers:
             plt.gca().add_patch(marker)
             plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
             plt.gca().add_patch(marker)
 
+            s_idx_final = find_nearest(time, marker.get_x())
+            e_idx_final = find_nearest(time, marker.get_x() + marker.get_width())
+            fea_spike_est_final = np.trapz(S[s_idx_final:e_idx_final], time[s_idx_final:e_idx_final])
+            print(f"Final epoch: feature {i}, spike_est {fea_spike_est_final}")
+            # plt.gca().text(marker.get_x(), marker.get_x() + marker.get_width(), str(fea_spike_est))
+
+            i += 1
+
         plt.axhline(y=K, linestyle="--", color="k")
-        plt.plot(time, V, 'b-', label='V(t)')
-        plt.plot(time, R, 'r-', label='R(t)')
-        plt.plot(time, O, 'y-', label='O(t)')
+        # plt.plot(time, R, 'r-', label='R(t)')
+        # plt.plot(time, O, 'y-', label='O(t)')
         plt.plot(time, S, 'g-', label='S(t)')
+        plt.plot(time, V, 'b-', label='V(t)')
 
         # plt.ylim((0, 1.3))
         plt.ylabel('V(t)')
@@ -127,8 +192,23 @@ def train_matlab(path, datamaker):
         plt.legend(loc='best')
         plt.show()
 
-    np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_cont.npy".format(datamaker.n, eta, np.around(a, decimals=3)), weight_m)
+        ### Plot average feature spike estimate
+        plt.scatter(np.arange(0, len(fea3_spike_est_arr)), fea3_spike_est_arr, color="green", marker="x")
+        plt.scatter(np.arange(0, len(fea2_spike_est_arr)), fea2_spike_est_arr, color="blue", marker="x")
+        plt.scatter(np.arange(0, len(fea1_spike_est_arr)), fea1_spike_est_arr, color="red", marker="x")
 
+        plt.axhline(y=1, linestyle="--", color="red")
+        plt.axhline(y=2, linestyle="--", color="blue")
+        plt.axhline(y=3, linestyle="--", color="green")
+        plt.show()
+
+    ### Save final trained weights
+    np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Epoch_{}_cont.npy".format(datamaker.n, eta, np.around(a, decimals=3), e), weight_m)
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
 
 def run_matlab(path):
     eng = matlab.engine.start_matlab()
@@ -315,7 +395,9 @@ def gekko_ode_train(path, datamaker, eta=-1, a=-1):
             error = np.where(np.array(neuron_A_out) >= K)[0].__len__() - desired_spikes
 
             synt_reset = trainer.calc_synt_reset(data, b)
-            weight_m = feedback_weight_update(weight_m, neuron_A_out, synt_reset, error, to_update=to_update, lr=lr)
+            update_new = feedback_weight_update(weight_m, neuron_A_out, synt_reset, error, to_update=to_update, lr=lr)
+
+            weight_m = weight_m + update_new
 
         # print("Error: {}".format(error))
         neuron_A_error.append(error)
@@ -345,21 +427,19 @@ def feedback_weight_update(weight_m, elig_sum, error, to_update=0.2, lr=0.001):
     update_new = []
     for i in range(0, len(weight_m)):
         if i in most_elig_syn:
-            # update_new.append(error * -lr)
+            update_new.append(error * -lr)
             # update_new.append(-elig_sum[i] * lr)
 
-            if error > 0:
-                update_new.append(-lr)
-            elif error < 0:
-                update_new.append(lr)
-            else:
-                update_new.append(0)
+            # if error > 0:
+            #     update_new.append(-lr)
+            # elif error < 0:
+            #     update_new.append(lr)
+            # else:
+            #     update_new.append(0)
         else:
             update_new.append(0)
 
-    weight_m = weight_m + update_new
-
-    return weight_m
+    return update_new
 
 
 def synt_train_Tempotron(path, datamaker):

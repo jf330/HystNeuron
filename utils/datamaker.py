@@ -34,7 +34,6 @@ class Datamaker(object):
     def gen_input_data(self, noise=False, fea_mode=3):
         np.random.seed(self.seed)
 
-        syn_ratio = 0.0001
         if noise:
             #  Random noisy background
             data = self.gen_background_data()

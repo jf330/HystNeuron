@@ -1,4 +1,4 @@
-function [out, elig_sum_array, spike_integral] = sim_matlab(stop_time, N, path)
+function [out, elig_sum_array] = sim_matlab(stop_time, N, path)
 
 % Load SymBiology neuron model
 m2_load = sbioloadproject('/Users/jf330/Dropbox/JuliaResearch/Paper1/Matlab_project/hyst_neuron.sbproj');
@@ -6,20 +6,22 @@ m2_load = sbioloadproject('/Users/jf330/Dropbox/JuliaResearch/Paper1/Matlab_proj
 m2 = m2_load.m1;
 
 % Readjust neural dynamics parameters
-% m2.Parameters(1).Value = 0; % a
-% m2.Parameters(2).Value = 0; % b
-% m2.Parameters(3).Value = 0; % g
-% m2.Parameters(4).Value = 0; % d
-% m2.Parameters(5).Value = 0; % eta
-% m2.Parameters(6).Value = 0; % threshold
-% m2.Parameters(7).Value = 0; % steepness
+params = load(path + "N_" + N + "_params.mat");
+
+m2.Parameters(1).Value = params.a; % a
+m2.Parameters(2).Value = params.b; % b
+m2.Parameters(3).Value = params.g; % g
+m2.Parameters(4).Value = params.d; % d
+m2.Parameters(5).Value = params.eta; % eta
+m2.Parameters(6).Value = params.K; % threshold
+m2.Parameters(7).Value = params.h; % steepness
 
 % Prepare weighted dose inputs
 for neur_idx = 0:N-1
     dose_new{neur_idx+1} = sbiodose("dose_"+ neur_idx, "schedule");
-
-    in_time = load(path + "/matlab_data/N_"+ N +"_time_inputs_"+ neur_idx +".mat");
-    in_amount = load(path + "/matlab_data/N_"+ N +"_weight_inputs_"+ neur_idx +".mat");
+% "/matlab_data/N_"
+    in_time = load(path + "N_"+ N +"_time_inputs_"+ neur_idx +".mat");
+    in_amount = load(path + "N_"+ N +"_weight_inputs_"+ neur_idx +".mat");
 
     Time = transpose(in_time.data);
     Amount = transpose(in_amount.data);
@@ -39,11 +41,11 @@ end
 
 csObj = getconfigset(m2,'active');
 set(csObj, 'Stoptime', stop_time);
-
+ 
 [time, x, names] = sbiosimulate(m2, dose_array);
 
 % Calculate spike estimation
-spike_integral = trapz(time,x(:,4));
+% spike_integral = trapz(time,x(:,4));
 
 % Choose neuron post_synaptic trace
 post_syn = x(:,1); %V

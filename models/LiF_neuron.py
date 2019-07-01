@@ -3,7 +3,7 @@ import numpy as np
 
 class LIFNeuron:
 
-    def __init__(self, K=1, decay=0.1, omega_rate=0.5, pre_x=1, pre_y=1):
+    def __init__(self, K=1, decay=0.1, ref_time=2.0, omega_rate=0.5, pre_x=1, pre_y=1):
 
         self.K = K
         self.decay = decay
@@ -20,7 +20,7 @@ class LIFNeuron:
         self.momentum = 0.3
 
         self.state = 0.0
-        self.ref_time = 5.0
+        self.ref_time = ref_time
         self.ref_period = 0.0
 
     def event_input(self, x, y, values):

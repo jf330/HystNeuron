@@ -234,7 +234,19 @@ def train_lif(path, datamaker, ref_time=0, decay=0):
     np.save(path + "/weights/weights_N_{}_Decay_{}_RefPer_{}_Epoch_{}.npy".format(neuron_A.pre_syn, np.around(neuron_A.decay, decimals=3), neuron_A.ref_time, e), neuron_A.weight_m)
 
 
-def train_matlab(path, datamaker):
+def matlab_train_many(local_path, datamaker, iter):
+    eta_range = np.linspace(0.0, 1.0, iter)
+    a_range = np.linspace(0.0, 1.0, iter)
+
+    # for i in tqdm(eta_range):
+    for i in eta_range:
+        print("Eta: {}".format(i))
+        for j in a_range:
+            print("A: {}".format(j))
+            train_matlab(local_path, datamaker, eta=i, a=j)
+
+
+def train_matlab(path, datamaker, eta=0, a=0.2):
     ### Training setup
     lr = 0.0005
     # lr = 0.001
@@ -251,13 +263,22 @@ def train_matlab(path, datamaker):
 
     eng = matlab.engine.start_matlab()
 
-    h = 250
-    K = 1
-    eta = 0.95
-    a = 0.3
-    b = 0.3
-    d = 1
-    g = 1
+    if a <= 0 and eta <= 0:
+        h = 250
+        K = 1
+        eta = 0.95
+        a = 0.3
+        b = 0.3
+        d = 1
+        g = 1
+    else:
+        h = 250
+        K = 1
+        eta = eta
+        a = a
+        b = 0.3
+        d = 1
+        g = 1
 
     params = {"a": a, "b": b, "g": g, "d": d, "eta": eta, "K": K, "h": h}
     sio.savemat(matlab_path + "N_" + str(datamaker.n) + "_params.mat", params)
@@ -307,12 +328,12 @@ def train_matlab(path, datamaker):
         elig = outputs[1][0]
 
         # Continuous output
-        # spike_est = np.trapz(S, time)
+        spike_est = np.trapz(S, time)
 
         # Discrete output
-        v = np.array(V)
-        v[np.where(v < 1)[0]] = 0
-        spike_est = np.count_nonzero(v[1:] > v[:-1]) + v[0]
+        # v = np.array(V)
+        # v[np.where(v < 1)[0]] = 0
+        # spike_est = np.count_nonzero(v[1:] > v[:-1]) + v[0]
 
         ### Weight update
         desired_state = np.zeros(len(data[1]))

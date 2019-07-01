@@ -77,6 +77,8 @@ def main(
         utils.other_tests.train_lif(path, datamaker)
     elif test_type == "lif_train_many":
         utils.other_tests.lif_train_many(path, datamaker, iterations)
+    elif test_type == "matlab_train_many":
+        utils.other_tests.matlab_train_many(path, datamaker, iterations)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 

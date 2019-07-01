@@ -22,7 +22,7 @@ def main(
     if path == "default":
         # cwd = os.path.dirname(__file__)  # Works for PyCharm
         cwd = os.getcwd()  # Works for Myrtle
-        path = cwd + "/results/106"
+        path = cwd + "/results/1"
 
     dt_scale = 1
     n = 100  # Number of neurons

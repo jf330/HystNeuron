@@ -3,21 +3,244 @@ import numpy as np
 from gekko import GEKKO
 import os
 import scipy.io as sio
+import scipy.signal as sig
 import matlab.engine
 
 from models.Tempotron_neuron import Tempotron
+from models.LiF_neuron import LIFNeuron
 
 import utils.training as trainer
 import utils.plotting as myplt
 
 
+def lif_train_many(local_path, datamaker, iter):
+    ref_range = np.linspace(0.0, 10, iter)
+    decay_range = np.linspace(0.0, 1.0, iter)
+
+    # for i in tqdm(eta_range):
+    for i in ref_range:
+        print("Ref: {}".format(i))
+        for j in decay_range:
+            print("Decay: {}".format(j))
+            train_lif(local_path, datamaker, ref_time=i, decay=j)
+
+
+def train_lif(path, datamaker, ref_time=0, decay=0):
+    ### Training setup
+    lr = 0.0005
+    to_update = 0.2
+    epochs = 25000
+    omega_rate = 0.5
+
+    noise = True
+    datamaker.bg_freq_rate = 1
+
+    plotting = True
+    readout = "output"
+
+    if ref_time < 0 and decay < 0:
+        neuron_A = LIFNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1)
+    else:
+        neuron_A = LIFNeuron(omega_rate=omega_rate, pre_x=datamaker.n, pre_y=1, decay=decay, ref_time=ref_time)
+
+    ### Load pre-generated features
+    features_path = path + "/features/feature_list_N_{}_fea_{}.npy".format(datamaker.n, datamaker.n_fea)
+    if os.path.isfile(features_path):
+        datamaker.feature_list = np.load(features_path, allow_pickle=True).item()
+    else:
+        np.save(features_path, datamaker.feature_list, allow_pickle=True)
+
+    ### Load pre-trained weights
+    # neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
+
+    neuron_A_error = []
+    fea1_spike_est_arr = []
+    fea2_spike_est_arr = []
+    fea3_spike_est_arr = []
+    for e in range(0, epochs):
+        if e % 100 == 0:
+            print("Epoch {}".format(e))
+        #     np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}_Epoch_{}.npy".format(neuron_A.pre_syn, neuron_A.eta,np.around(neuron_A.a,decimals=3), readout, e), neuron_A.weight_m)
+
+        ### Init. history arrays
+        neuron_A_state = []
+        neuron_A_out = []
+        neuron_A_reset = []
+        neuron_A.clear()
+
+        data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, fea_mode=3)
+
+        ### Present stimulus
+        for bin in range(0, len(data[1])):
+
+            simul_events = np.where(data[:, bin] >= 1)[0]
+            # print("Clock: {}, inputs: {}".format(bin, simul_events))
+
+            if simul_events.size != 0:
+                neuron_A.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(), values=np.ones_like(simul_events))
+            out_A = neuron_A.decay_step()
+
+            neuron_A_state.append(neuron_A.state)
+            neuron_A_reset.append(neuron_A.ref_period)
+            neuron_A_out.append(out_A)
+
+        ### Weight update
+        desired_state = np.zeros(len(data[1]))
+        count = 0
+        index = np.rint(time_occur / datamaker.dt).astype(int)
+        fea1_spike_est = []
+        fea2_spike_est = []
+        fea3_spike_est = []
+        while count < len(index):
+            fea = datamaker.feature_list['feature_' + str(fea_order[count])]
+            T_fea_local = fea[0].size
+
+            output = np.array(neuron_A_out)
+            fragment = output[index[count]:index[count] + T_fea_local]
+            fea_spike_integral = np.where(fragment >= neuron_A.K)[0].__len__()
+
+            if fea_order[count] == 0:
+                desired_state[index[count]:index[count] + T_fea_local] = 1
+                fea1_spike_est.append(fea_spike_integral)
+            elif fea_order[count] == 1:
+                desired_state[index[count]:index[count] + T_fea_local] = 2
+                fea2_spike_est.append(fea_spike_integral)
+            elif fea_order[count] == 2:
+                desired_state[index[count]:index[count] + T_fea_local] = 3
+                fea3_spike_est.append(fea_spike_integral)
+
+            # elif fea_order[count] == 3:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 5
+            # elif fea_order[count] == 4:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 5
+            # elif fea_order[count] == 5:
+            #     desired_state[index[count]:index[count] + T_fea_local] = 6
+
+            index += np.rint(T_fea_local).astype(int)
+            count += 1
+
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
+        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4 + n_fea_occur[4] * 5
+
+        error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_out)
+        error = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__() - desired_spikes
+
+        synt_reset = trainer.calc_synt_reset(data, neuron_A.decay)
+
+        # elig = calc_elig(synt_reset, neuron_A_state)
+        # # elig = calc_elig(np.rot90(data), neuron_A_state)
+        #
+        # update_new = feedback_weight_update(weight_m, elig, error, to_update=to_update, lr=lr)
+        #
+        # update_all = np.array(update_new) + (update_prev * momentum)
+        # update_prev = np.array(update_new)
+        # weight_m = weight_m + update_all
+        # weight_m = np.clip(weight_m, 0, 1)
+        # neuron_A.weight_m = weight_m
+
+        neuron_A.feedback_weight_update(neuron_A_state, synt_reset, error, error_trace, to_update=to_update, lr=lr)
+        # neuron_A.feedback_weight_update(neuron_A_state, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
+
+        if len(fea1_spike_est) != 0:
+            fea1_spike_est_arr.append(sum(fea1_spike_est)/len(fea1_spike_est))
+        else:
+            fea1_spike_est_arr.append(None)
+
+        if len(fea2_spike_est) != 0:
+            fea2_spike_est_arr.append(sum(fea2_spike_est)/len(fea2_spike_est))
+        else:
+            fea2_spike_est_arr.append(None)
+
+        if len(fea3_spike_est) != 0:
+            fea3_spike_est_arr.append(sum(fea3_spike_est)/len(fea3_spike_est))
+        else:
+            fea3_spike_est_arr.append(None)
+
+        if e % 100 == 0:
+            print("Error: {}, Desired: {}".format(error, desired_spikes))
+        neuron_A_error.append(error)
+
+    if plotting:
+        ### Plot input data raster
+        markers = datamaker.add_marker(time_occur, fea_order, neuron_A.pre_syn - 1, neuron_A.pre_syn / 40)
+        myplt.plot_features(markers, data)
+
+        ### Plot reaction
+        plt.axhline(y=neuron_A.K, linestyle="--", color="k")
+
+        markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+        for marker in markers:
+            plt.gca().add_patch(marker)
+            plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+            plt.gca().add_patch(marker)
+        plt.plot(neuron_A_out, label="A out")
+        plt.ylabel('O(t)')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
+
+        plt.plot(neuron_A_state, label="A state")
+        plt.plot(neuron_A_reset, label="A reset")
+        plt.plot(neuron_A_out, label="A out")
+        plt.axhline(y=neuron_A.K, linestyle="--", color="k")
+
+        markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+        for marker in markers:
+            plt.gca().add_patch(marker)
+            plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+            plt.gca().add_patch(marker)
+
+        plt.ylabel('Neural dynamics')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
+
+        ### Plot error
+        plt.scatter(np.array(range(0, neuron_A_error.__len__())), neuron_A_error, marker="x", label="Error (A)")
+        # plt.plot(neuron_A_error, label="Error (A)")
+        plt.ylabel('Error')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
+
+        ### Plot trial error
+        markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+        for marker in markers:
+            plt.gca().add_patch(marker)
+            plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+            plt.gca().add_patch(marker)
+        plt.plot(error_trace)
+        plt.ylabel('Error')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        plt.show()
+
+        ### Plot average feature spike estimate
+        plt.scatter(np.arange(0, len(fea3_spike_est_arr)), fea3_spike_est_arr, color="green", marker="x")
+        plt.scatter(np.arange(0, len(fea2_spike_est_arr)), fea2_spike_est_arr, color="blue", marker="x")
+        plt.scatter(np.arange(0, len(fea1_spike_est_arr)), fea1_spike_est_arr, color="red", marker="x")
+
+        plt.axhline(y=1, linestyle="--", color="red")
+        plt.axhline(y=2, linestyle="--", color="blue")
+        plt.axhline(y=3, linestyle="--", color="green")
+        plt.show()
+
+    ### Print spike times
+    print(np.where(np.array(neuron_A_state) >= 1)[0])
+
+    ### Save trained weights
+    np.save(path + "/weights/weights_N_{}_Decay_{}_RefPer_{}_Epoch_{}.npy".format(neuron_A.pre_syn, np.around(neuron_A.decay, decimals=3), neuron_A.ref_time, e), neuron_A.weight_m)
+
+
 def train_matlab(path, datamaker):
     ### Training setup
-    # lr = 0.0005
-    lr = 0.002
+    lr = 0.0005
+    # lr = 0.001
     to_update = 0.2
-    epochs = 1500
-    omega_rate = 0.3
+    epochs = 20000
+    omega_rate = 0.2
     momentum = 0.2
 
     noise = True
@@ -30,7 +253,7 @@ def train_matlab(path, datamaker):
 
     h = 250
     K = 1
-    eta = 0.9
+    eta = 0.95
     a = 0.3
     b = 0.3
     d = 1
@@ -83,7 +306,13 @@ def train_matlab(path, datamaker):
         time = outputs[0][4]
         elig = outputs[1][0]
 
-        spike_est = np.trapz(S, time)
+        # Continuous output
+        # spike_est = np.trapz(S, time)
+
+        # Discrete output
+        v = np.array(V)
+        v[np.where(v < 1)[0]] = 0
+        spike_est = np.count_nonzero(v[1:] > v[:-1]) + v[0]
 
         ### Weight update
         desired_state = np.zeros(len(data[1]))
@@ -420,7 +649,6 @@ def feedback_weight_update(weight_m, elig_sum, error, to_update=0.2, lr=0.001):
 
     ### Select top x% most eligible pre-syn neurons over whole input
     update_partition = np.rint((weight_m.__len__()) * to_update).astype(int)
-
     most_elig_syn = np.argpartition(elig_sum, -update_partition)[-update_partition:]
 
     ### Update most_elig_syn blame-wise
@@ -440,6 +668,19 @@ def feedback_weight_update(weight_m, elig_sum, error, to_update=0.2, lr=0.001):
             update_new.append(0)
 
     return update_new
+
+
+def calc_elig(pre, post):
+    ### Correlation-based eligibility trace towards post-syn signal
+    elig = []
+    for i in range(0, len(pre[0,:])):
+        elig.append(np.array(pre[:, i]) * np.array(post))
+        # elig.append(np.array(pre[:, i]) * np.array(abs(error_trace)))
+        # elig.append(np.array(pre[:, i]) * np.array(error_trace))
+        # elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace))
+        # elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace) * self.weight_m[i, 0])
+
+    return elig
 
 
 def synt_train_Tempotron(path, datamaker):

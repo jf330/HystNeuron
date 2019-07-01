@@ -2,7 +2,9 @@ function [out, elig_sum_array] = sim_matlab(stop_time, N, path)
 
 % Load SymBiology neuron model
 m2_load = sbioloadproject('/Users/jf330/Dropbox/JuliaResearch/Paper1/Matlab_project/hyst_neuron.sbproj');
+% m2_load = sbioloadproject('/home/jf330/HystNeuron/matlab/hyst_neuron.sbproj');
 % m2_load = sbioloadproject('/Users/jf330/Dropbox/JuliaResearch/Paper1/Matlab_project/hyst_neuron_test.sbproj');
+
 m2 = m2_load.m1;
 
 % Readjust neural dynamics parameters

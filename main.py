@@ -73,6 +73,10 @@ def main(
         utils.other_tests.run_matlab(path)
     elif test_type == "train_matlab":
         utils.other_tests.train_matlab(path, datamaker)
+    elif test_type == "train_lif":
+        utils.other_tests.train_lif(path, datamaker)
+    elif test_type == "lif_train_many":
+        utils.other_tests.lif_train_many(path, datamaker)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 

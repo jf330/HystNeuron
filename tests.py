@@ -266,8 +266,13 @@ def synt_train_many(local_path, datamaker, iter, dt_scale):
             print("A: {}".format(j))
             synt_train(local_path, datamaker, dt_scale, eta=i, a=j)
 
+def sigmoid(x):
+    sig = []
+    for x_t in x:
+        sig.append((1 / (1 + np.exp(-(x_t - 1) * 250))))
+    return sig
 
-def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
+def synt_train(path, datamaker, dt_scale, eta=0.9, a=0.2):
     ### Training setup
     lr = 0.0001
     to_update = 0.2
@@ -298,12 +303,12 @@ def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
         np.save(features_path, datamaker.feature_list, allow_pickle=True)
 
     ### Load pre-trained weights
-    # neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}.npy".format(datamaker.n, neuron_A.eta, neuron_A.a))
+    # neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}_Epoch_{}.npy".format(datamaker.n, neuron_A.eta, neuron_A.a, readout, 9999))
 
     neuron_A_error = []
     for e in range(0, epochs):
-        # if e % 100 == 0:
-        #     print("Epoch {}".format(e))
+        if e % 100 == 0:
+            print("Epoch {}".format(e))
         #     np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_{}_Epoch_{}.npy".format(neuron_A.pre_syn, neuron_A.eta,np.around(neuron_A.a,decimals=3), readout, e), neuron_A.weight_m)
 
         ### Init. history arrays
@@ -340,8 +345,8 @@ def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
                 desired_state[index[count]:index[count] + T_fea_local] = 1
             elif fea_order[count] == 1:
                 desired_state[index[count]:index[count] + T_fea_local] = 2
-            # elif fea_order[count] == 2:
-            #     desired_state[index[count]:index[count] + T_fea_local] = 3
+            elif fea_order[count] == 2:
+                desired_state[index[count]:index[count] + T_fea_local] = 3
             # elif fea_order[count] == 3:
             #     desired_state[index[count]:index[count] + T_fea_local] = 5
             # elif fea_order[count] == 4:
@@ -352,8 +357,8 @@ def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
             index += np.rint(T_fea_local).astype(int)
             count += 1
 
-        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
-        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
+        # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
+        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3
         # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4
         # desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2 + n_fea_occur[2] * 3 + n_fea_occur[3] * 4 + n_fea_occur[4] * 5
 
@@ -367,11 +372,26 @@ def synt_train(path, datamaker, dt_scale, eta=0, a=0.2):
 
         elif readout == "output":
             error_trace = trainer.calc_error(neuron_A.K, desired_state, neuron_A_out)
-            # error = np.where(np.array(neuron_A_out) >= neuron_A.K)[0].__len__() - desired_spikes
-            error = sum(error_trace)
+            error = np.where(np.array(sig_output) >= neuron_A.K)[0].__len__() - desired_spikes
+            # error = sum(error_trace)
 
             synt_reset = trainer.calc_synt_reset(data, neuron_A.b)
             neuron_A.feedback_weight_update(neuron_A_out, synt_reset, error, error_trace, to_update=to_update, lr=lr)
+            # neuron_A.feedback_weight_update(neuron_A_out, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
+
+        elif readout == "state-probab":
+            random_arr = np.random.rand((len(neuron_A_out)))
+            sig_state = np.array(sigmoid(neuron_A_state))
+            spike_idxs = np.where(random_arr < sig_state)[0]
+            sig_output = np.zeros_like(neuron_A_state)
+            sig_output[spike_idxs] = 1
+
+            error_trace = trainer.calc_error(neuron_A.K, desired_state, sig_output)
+            error = np.where(np.array(sig_output) >= neuron_A.K)[0].__len__() - desired_spikes
+            # error = sum(error_trace)
+
+            synt_reset = trainer.calc_synt_reset(data, neuron_A.b)
+            neuron_A.feedback_weight_update(neuron_A_state, synt_reset, error, error_trace, to_update=to_update, lr=lr)
             # neuron_A.feedback_weight_update(neuron_A_out, np.rot90(data), error, error_trace, to_update=to_update, lr=lr)
 
         elif readout == "reset":

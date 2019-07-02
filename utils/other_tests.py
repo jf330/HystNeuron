@@ -25,11 +25,11 @@ def lif_train_many(local_path, datamaker, iter):
             train_lif(local_path, datamaker, ref_time=i, decay=j)
 
 
-def train_lif(path, datamaker, ref_time=0, decay=0):
+def train_lif(path, datamaker, ref_time=5, decay=0.4):
     ### Training setup
     lr = 0.0005
     to_update = 0.2
-    epochs = 25000
+    epochs = 30000
     omega_rate = 0.5
 
     noise = True
@@ -300,10 +300,10 @@ def train_matlab(path, datamaker, eta=0, a=0.2):
     fea2_spike_est_arr = []
     fea3_spike_est_arr = []
     for e in range(0, epochs):
-        print("Epoch {}".format(e))
 
-        if e % 50 == 0:
-            np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Epoch_{}_cont.npy".format(datamaker.n, eta, np.around(a, decimals=3), e), weight_m)
+        if e % 100 == 0:
+            print("Epoch {}".format(e))
+            # np.save(path + "/weights/weights_N_{}_Eta_{}_A_{}_Epoch_{}_cont.npy".format(datamaker.n, eta, np.around(a, decimals=3), e), weight_m)
 
         data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise, fea_mode=3)
         for neur_idx in range(0, datamaker.n):
@@ -383,7 +383,8 @@ def train_matlab(path, datamaker, eta=0, a=0.2):
         weight_m = weight_m + update_all
         weight_m = np.clip(weight_m, 0, 1)
 
-        print("Error: {}, Desired: {}".format(error, desired_spikes))
+        if e % 100 == 0:
+            print("Error: {}, Desired: {}".format(error, desired_spikes))
         neuron_A_error.append(error)
 
         if len(fea1_spike_est) != 0:

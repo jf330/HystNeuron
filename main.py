@@ -27,8 +27,8 @@ def main(
     dt_scale = 1
     n = 100  # Number of neurons
     dt = 0.001 * dt_scale  # Bin length (s)
-    duration = 0.2  # Trial duration background (s)
-    n_fea = 3  # Total number of features and distractors
+    duration = 0.1  # Trial duration background (s)
+    n_fea = 1  # Total number of features and distractors
     cf_mean = 2  # Mean number of occurrences for each feature
     T_fea = 0.05  # Base feature duration (s)
     fr = 5  # Background spiking frequency (Hz)

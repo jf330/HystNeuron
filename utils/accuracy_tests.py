@@ -43,12 +43,14 @@ def gutig_quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
         desired_spikes = responses[res_idx]
 
         fea_responses = []
+        null_responses = []
         fea_correct = 0
+        insertion_idx = np.random.randint(0, background)
         for e in range(0, epochs):
-            # print("Epoch {}".format(e))
+            print("Epoch {}".format(e))
 
             data = datamaker.gen_background_data()
-            feature_data = np.insert(data, [np.random.randint(0, background)], feature_list[fea], axis=1)
+            feature_data = np.insert(data, [insertion_idx], feature_list[fea], axis=1)
             # feature_data = np.insert(data, int(background/2), feature_list[fea], axis=1)
 
             neuron_A_out = []
@@ -68,16 +70,13 @@ def gutig_quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
             fea_responses.append(actual_num_spikes)
             if actual_num_spikes == desired_spikes:
                 fea_correct += 1
-            # else:
-            #     print()
 
-        null_responses = []
-        desired_null = 0
-        for e in range(0, epochs):
+        # desired_null = 0
+        # for e in range(0, epochs):
             # print("Epoch {}".format(e))
 
-            data = datamaker.gen_background_data()
-            empty_feature_data = np.insert(data, [np.random.randint(0, background)], np.zeros((pre_syn, np.rint(datamaker.T_fea/datamaker.dt).astype(int))), axis=1)
+            # data = datamaker.gen_background_data()
+            empty_feature_data = np.insert(data, [insertion_idx], np.zeros((pre_syn, np.rint(datamaker.T_fea/datamaker.dt).astype(int))), axis=1)
             # empty_feature_data = np.insert(data, int(background/2), np.zeros((pre_syn, np.rint(datamaker.T_fea/datamaker.dt).astype(int))), axis=1)
 
             neuron_A_out = []
@@ -101,8 +100,8 @@ def gutig_quality_test(path, datamaker, pre_syn, a=0.5, iter=21):
 
         # null_spike_sum.append(sum(null_responses))
 
-        # resp_mean = (sum(fea_responses) - sum(null_responses))/epochs
-        resp_mean = sum(fea_responses)/epochs
+        resp_mean = (sum(fea_responses) - sum(null_responses))/epochs
+        # resp_mean = sum(fea_responses)/epochs
 
         resp_dict.update({fea: resp_mean})
         error_dict.update({fea: fea_correct/epochs})
@@ -152,10 +151,10 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
     plotting = False
     dt_scale = 1
 
-    # responses = [3]
-    # responses = [1, 2]
+    # responses = [1]
+    responses = [1, 2]
     # responses = [3, 4]
-    responses = [1, 2, 3]
+    # responses = [1, 2, 3]
     # responses = [2, 3, 4]
     # responses = [1, 2, 3, 4]
     # responses = [2,3,4,5,6]
@@ -164,7 +163,7 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
 
     fea_1 = []
     fea_2 = []
-    fea_3 = []
+    # fea_3 = []
     # fea_4 = []
     # fea_5 = []
     # fea_6 = []
@@ -172,7 +171,7 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
 
     fea_1_correct = []
     fea_2_correct = []
-    fea_3_correct = []
+    # fea_3_correct = []
     # fea_4_correct = []
     # fea_5_correct = []
     # fea_6_correct = []
@@ -202,11 +201,11 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
         # neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Eta_{}_A_{}_Read_output.npy".format(pre_syn, s, np.around(a, decimals=3)))
         # feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
-        neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Decay_{}_RefPer_{}_Epoch_{}.npy".format(pre_syn, a, s, 24999))
+        neuron_A.weight_m = np.load(path + "/weights/weights_N_{}_Decay_{}_RefPer_{}_Epoch_{}.npy".format(pre_syn, a, s, 29999))
         feature_list = np.load(path + "/features/feature_list_N_{}_fea_{}.npy".format(pre_syn, datamaker.n_fea)).item()
 
         # print("Test for Eta: {}, A: {}".format(neuron_A.eta, neuron_A.a))
-        print("Test for Ref_period: {}, Decay: {}".format(neuron_A.ref_period, neuron_A.decay))
+        print("Test for Ref_period: {}, Decay: {}".format(neuron_A.ref_time, neuron_A.decay))
 
         resp_dict = {}
         error_dict = {}
@@ -216,12 +215,15 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
             desired_spikes = responses[res_idx]
 
             fea_responses = []
+            null_responses = []
+
             fea_correct = 0
+            insertion_idx = np.random.randint(0, background)
             for e in range(0, epochs):
                 # print("Epoch {}".format(e))
 
                 data = datamaker.gen_background_data()
-                feature_data = np.insert(data, [np.random.randint(0, background)], feature_list[fea], axis=1)
+                feature_data = np.insert(data, [insertion_idx], feature_list[fea], axis=1)
                 # feature_data = np.insert(data, int(background/2), feature_list[fea], axis=1)
 
                 neuron_A_out = []
@@ -257,13 +259,12 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
                 if actual_num_spikes == desired_spikes:
                     fea_correct += 1
 
-            null_responses = []
-            desired_null = 0
-            for e in range(0, epochs):
+            # desired_null = 0
+            # for e in range(0, epochs):
                 # print("Epoch {}".format(e))
 
-                data = datamaker.gen_background_data()
-                empty_feature_data = np.insert(data, [np.random.randint(0, background)], np.zeros((pre_syn, np.rint(datamaker.T_fea/datamaker.dt).astype(int))), axis=1)
+                # data = datamaker.gen_background_data()
+                empty_feature_data = np.insert(data, [insertion_idx], np.zeros((pre_syn, np.rint(datamaker.T_fea/datamaker.dt).astype(int))), axis=1)
                 # empty_feature_data = np.insert(data, int(background/2), np.zeros((pre_syn, np.rint(datamaker.T_fea/datamaker.dt).astype(int))), axis=1)
 
                 neuron_A_out = []
@@ -292,8 +293,8 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
 
             # null_spike_sum.append(sum(null_responses))
 
-            # resp_mean = (sum(fea_responses) - sum(null_responses))/epochs
-            resp_mean = sum(fea_responses)/epochs
+            resp_mean = (sum(fea_responses) - sum(null_responses))/epochs
+            # resp_mean = sum(fea_responses)/epochs
 
             resp_dict.update({fea: resp_mean})
             error_dict.update({fea: fea_correct/epochs})
@@ -305,7 +306,7 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
 
         fea_1.append(resp_dict["feature_0"])
         fea_2.append(resp_dict["feature_1"])
-        fea_3.append(resp_dict["feature_2"])
+        # fea_3.append(resp_dict["feature_2"])
         # fea_4.append(resp_dict["feature_3"])
         # fea_5.append(resp_dict["feature_4"])
         # fea_6.append(resp_dict["feature_5"])
@@ -314,7 +315,7 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
 
         fea_1_correct.append(error_dict["feature_0"])
         fea_2_correct.append(error_dict["feature_1"])
-        fea_3_correct.append(error_dict["feature_2"])
+        # fea_3_correct.append(error_dict["feature_2"])
         # fea_4_correct.append(error_dict["feature_3"])
         # fea_5_correct.append(error_dict["feature_4"])
         # fea_6_correct.append(error_dict["feature_5"])
@@ -322,24 +323,25 @@ def quality_test(path, datamaker, pre_syn, a=0.8, iter=11):
     print("Resp null {}".format(fea_null))
     print("Resp Fea 1 {}".format(fea_1))
     print("Resp Fea 2 {}".format(fea_2))
-    print("Resp Fea 3 {}".format(fea_3))
+    # print("Resp Fea 3 {}".format(fea_3))
     # print("Resp Fea 4 {}".format(fea_4))
     # print("Resp Fea 5 {}".format(fea_5))
     # print("Resp Fea 6 {}".format(fea_6))
 
     print("Fea 1 acc. {}".format(fea_1_correct))
     print("Fea 2 acc. {}".format(fea_2_correct))
-    print("Fea 3 acc. {}".format(fea_3_correct))
+    # print("Fea 3 acc. {}".format(fea_3_correct))
     # print("Fea 4 acc. {}".format(fea_4_correct))
     # print("Fea 5 acc. {}".format(fea_5_correct))
     # print("Fea 6 acc. {}".format(fea_6_correct))
 
     # acc = np.array(fea_1_correct)
-    # acc = (np.array(fea_1_correct) + np.array(fea_2_correct)) / 2
-    acc = (np.array(fea_1_correct) + np.array(fea_2_correct) + np.array(fea_3_correct)) / 3
+    acc = (np.array(fea_1_correct) + np.array(fea_2_correct)) / 2
+    # acc = (np.array(fea_1_correct) + np.array(fea_2_correct) + np.array(fea_3_correct)) / 3
     # acc = (np.array(fea_1_correct) + np.array(fea_2_correct) + np.array(fea_3_correct) + np.array(fea_4_correct)) / 4
     # acc = (np.array(fea_1_correct) + np.array(fea_2_correct) + np.array(fea_3_correct) + np.array(fea_4_correct) + np.array(fea_5_correct)) / 5
     # acc = (np.array(fea_1_correct) + np.array(fea_2_correct) + np.array(fea_3_correct) + np.array(fea_4_correct) + np.array(fea_5_correct) + np.array(fea_6_correct)) / 6
+
     # print("Acc: {}, for a: {}".format(acc, neuron_A.a))
     print("Acc: {}, for Decay: {}".format(acc, neuron_A.decay))
 

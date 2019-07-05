@@ -3,11 +3,11 @@ import numpy as np
 
 
 class HystLayer:
-    def __init__(self, h=300, K=1, eta=0.9, a=0.2, b=0.3, d=1, g=1, omega_rate=0.5, each_pre_x=1, each_pre_y=1, n=1):
+    def __init__(self, h=150, K=1, eta=0.9, a=0.2, b=0.5, omega_rate=0.5, each_pre_x=1, each_pre_y=1, n=1):
         self.n = n
         self.neurons = []
         for count in range(0, self.n):
-            buffer = HystNeuron(h, K, eta, a, b, d, g, omega_rate, each_pre_x, each_pre_y)
+            buffer = HystNeuron(h, K, eta, a, b, omega_rate=omega_rate, pre_x=each_pre_x, pre_y=each_pre_y)
             self.neurons.append(buffer)
 
         self.history_state = []
@@ -33,9 +33,9 @@ class HystLayer:
             else:
                 self.history_state[idx].append(self.neurons[idx].state)
                 self.history_reset[idx].append(self.neurons[idx].reset)
-                self.history_out[idx].append(self.neurons[idx].out)
+                self.history_out[idx].append([self.neurons[idx].out])
 
-            self.frame_num += 1
+        self.frame_num += 1
 
         return output
 

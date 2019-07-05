@@ -266,11 +266,187 @@ def synt_train_many(local_path, datamaker, iter, dt_scale):
             print("A: {}".format(j))
             synt_train(local_path, datamaker, dt_scale, eta=i, a=j)
 
+            
 def sigmoid(x):
     sig = []
     for x_t in x:
         sig.append((1 / (1 + np.exp(-(x_t - 1) * 250))))
     return sig
+
+
+# sig(x) works for numpy arrays and values
+def sig(x):
+    return 1 / (1 + np.exp(-200 * (x - 1)))
+
+
+# TODO: Rewrite my state array so that it contains sig(state) so that sig_prime returns x - x^2
+def sig_prime(x):
+    return sig(x) * (1 - sig(x))
+
+
+def synt_network(path, datamaker, eta=-1, a=-1):
+    lr = 0.00001
+    # to_update = 0.2  # Do I want to train most eligible?
+    epochs = 1000
+    omega_rate_layer = 0.8
+    omega_rate_out = 0.8
+
+    noise = True
+    datamaker.bg_freq_rate = 0
+
+    plotting = True
+    readout = "output"
+
+    no_layer_n = 2
+
+    if eta < 0 and a < 0:
+        layer = HystLayer(omega_rate=omega_rate_layer, each_pre_x=datamaker.n, each_pre_y=1, n=no_layer_n)
+        out = HystNeuron(omega_rate=omega_rate_out, pre_x=no_layer_n, pre_y=1)
+    else:
+        layer = HystLayer(omega_rate=omega_rate_layer, each_pre_x=datamaker.n, each_pre_y=1, n=no_layer_n, switch=eta, a=a)
+        out = HystNeuron(omega_rate=omega_rate_out, pre_x=no_layer_n, pre_y=1, eta=eta, a=a)
+
+    error = []
+    for e in range(0, epochs):
+        # if e % 1000 == 0:
+        print(e)
+        out_state = []
+        out_out = []
+        out_reset = []
+        neuron_states = [x[:] for x in [[]] * no_layer_n]
+        neuron_outs = [x[:] for x in [[]] * no_layer_n]
+        neuron_resets = [x[:] for x in [[]] * no_layer_n]
+        out.clear()
+
+        data, time_occur, fea_order, n_fea_occur, fea_time, fea_order = datamaker.gen_input_data(noise=noise)
+
+        neuron_states_actual = []
+
+        for bin in range(0, len(data[1])):
+
+            simul_events = np.where(data[:, bin] >= 1)[0]
+            # print("Clock: {}, inputs: {}".format(bin, simul_events))
+
+            if simul_events.size != 0:
+                layer.event_input(x=simul_events, y=np.zeros(simul_events.__len__()).tolist(),
+                                     values=np.ones_like(simul_events))
+            out_A = layer.decay_step()
+            spikes = []
+            neurons = layer.neurons
+            rand_no = rand.random()
+            for i in range(0, len(neurons)):
+                sig_val = sig(neurons[i].state) > rand_no
+                for j in range(0, len(neurons)):
+                    if j != i:
+                        neurons[j].reset += sig_val
+
+                spikes.append(sig_val)
+                neuron_outs[i].append(sig_val)
+                neuron_states[i].append(neurons[i].state)  # For graphing purposes
+
+            state_array = np.array([neuron_states[0][bin], neuron_states[1][bin]])  # TODO: Generalise this
+            neuron_states_actual.append(np.reshape(state_array, (2, 1)))
+
+            events_O = np.where(np.array(spikes) >= 1)[0]
+            if events_O.size != 0:
+                out.event_input(x=events_O, y=np.zeros(events_O.__len__()).tolist(), values=np.ones_like(events_O))
+            out_O = out.decay_step()  # May not need the value?
+            out_spike = sig(out.state) > rand_no
+
+            out_state.append(out.state)
+            out_reset.append(out.reset)
+            out_out.append(out_spike)
+
+        # Error calculations
+        desired_state = np.zeros(len(data[1]))
+        count = 0
+        index = np.rint(time_occur / datamaker.dt).astype(int)
+        while count < len(index):
+            fea = datamaker.feature_list['feature_' + str(fea_order[count])]
+            T_fea_local = fea[0].size
+
+            if fea_order[count] == 0:
+                desired_state[index[count]:index[count] + T_fea_local] = 1
+            elif fea_order[count] == 1:
+                desired_state[index[count]:index[count] + T_fea_local] = 2
+
+            index += np.rint(T_fea_local).astype(int)
+            count += 1
+
+        desired_spikes = n_fea_occur[0] * 1 + n_fea_occur[1] * 2
+
+        # Calculate error trace TODO: Test out how to punish spikes outside of features
+        error_trace_O = trainer.calc_error(out.K, desired_state, out_out)
+        error_out = sum(error_trace_O)
+        error.append(error_out)
+
+        # Back-propagation to work out weight changes TODO: Batch train
+        del_k = []
+        del_j = []
+        for i in range(0, len(error_trace_O)):
+            del_k.append(-np.array(error_trace_O[i]))
+
+        dw_jk = np.zeros_like(out.weight_m)
+        for i in range(0, len(del_k)):
+            dw_jk = dw_jk + np.dot(sig(neuron_states_actual[i]), del_k[i].T)
+            del_j.append(del_k[i] * out.weight_m * sig_prime(neuron_states_actual[i]))
+        dw_jk *= - lr
+
+        dw_ij = np.zeros_like(layer.neurons[0].weight_m)
+        for i in range(0, len(del_j)):
+            data_step = np.expand_dims(np.array(data.T[i]), 1)
+            dw_ij = dw_ij + np.dot(sig(data_step), del_j[i].T)
+        dw_ij *= - lr
+
+        # Make changes to weights
+        for i in range(0, len(layer.neurons)):
+            layer.neurons[i].update_weight(dw_ij[i])
+        out.update_weight(dw_jk)
+
+    # Plot data
+    fig, axes = plt.subplots(3, 0, sharex=True, sharey=True)
+    n1 = fig.add_subplot(212)
+    n1.plot(out_out)
+    fig.text(0.06, 0.25, 'Out', ha='center', va='center', rotation='vertical')
+    fig.text(0.5, 0.03, 'Time', ha='center', va='center')
+    # n1.xlabel('Time')
+    # n1.ylabel('Out')
+    n1.set_title('Output neuron')
+    n2 = fig.add_subplot(321)
+    n2.plot(neuron_outs[0])
+    fig.text(0.06, 0.75, 'Out', ha='center', va='center', rotation='vertical')
+    fig.text(0.3, 0.57, 'Time', ha='center', va='center')
+    # n2.xlabel('Time')
+    # n2.ylabel('Out')
+    n2.set_title('Hidden neuron 1')
+    n3 = fig.add_subplot(322)
+    n3.plot(neuron_outs[1])
+    fig.text(0.5, 0.75, 'Out', ha='center', va='center', rotation='vertical')
+    fig.text(0.7, 0.57, 'Time', ha='center', va='center')
+    # n3.xlabel('Time')
+    # n3.ylabel('Out')
+    n3.set_title('Hidden neuron 2')
+    plt.show()
+
+    plt.plot(out_state, label="A state")
+    plt.plot(out_reset, label="A reset")
+    plt.plot(out_out, label="A out")
+    plt.axhline(y=out.K, linestyle="--", color="k")
+
+    markers = datamaker.add_marker(time_occur, fea_order, 1, 0.05)
+    for marker in markers:
+        plt.gca().add_patch(marker)
+        plt.axvspan(marker.get_x(), marker.get_x() + marker.get_width(), alpha=0.2, color="black")
+        plt.gca().add_patch(marker)
+
+    plt.ylabel('Neural dynamics')
+    plt.xlabel('Time')
+    plt.legend(loc='best')
+    plt.show()
+
+    plt.plot(error, label="error")
+    plt.show()
+    
 
 def synt_train(path, datamaker, dt_scale, eta=0.9, a=0.2):
     ### Training setup

@@ -58,9 +58,10 @@ class HystNeuron:
 
         ### Different differentiable threshold implementations
         # delta_reset = (np.float_power(self.state, self.h) / (np.float_power(self.K, self.h) + np.float_power(self.state, self.h))) * self.d  - self.b * self.reset
-        delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) * self.d - self.b * self.reset
+        # delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) * self.d - self.b * self.reset
         # delta_reset = (0.5 * (1 + np.tanh(self.h * (self.state - self.K)))) * self.d  - self.b * self.reset
         # delta_reset = (1/(1+np.exp(-(self.state-self.K)*self.h))) * self.d - self.b * self.reset
+        delta_reset = 1 / (1 + np.exp(-150 * (self.state - self.K))) * self.d - self.b*self.reset
 
         self.reset = self.reset + delta_reset
         # self.reset = np.clip(self.reset, 0, 1)
@@ -141,3 +142,9 @@ class HystNeuron:
         self.update_prev = np.array(update_all)
 
         return elig
+
+    def update_weight(self, val):
+        update = val + self.update_prev * self.momentum
+        self.weight_m = self.weight_m + update
+        self.update_prev = update
+        # self.weight_m = np.clip(self.weight_m, 0, 1)  # IMPORTANT: Clipping breaks the back-prop.

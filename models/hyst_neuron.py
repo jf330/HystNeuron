@@ -3,7 +3,7 @@ import numpy as np
 
 class HystNeuron:
 
-    def __init__(self, h=300, K=1, eta=0.9, a=0.2, b=0.3, d=1, g=1, omega_rate=0.2, pre_x=1, pre_y=1):
+    def __init__(self, h=200, K=1, eta=0.1, a=0.2, b=0.2, d=1, g=1, omega_rate=0.02, pre_x=1, pre_y=1):
 
         ### ODEs parameters
         self.h = h
@@ -26,7 +26,7 @@ class HystNeuron:
             self.weight_m = np.ones((pre_x, pre_y))
         else:
             self.weight_m = np.random.rand(pre_x, pre_y) * omega_rate
-            # self.weight_m = np.random.randn(pre_x,pre_y) * omega_rate
+            # self.weight_m = np.random.randn(pre_x, pre_y) * omega_rate
 
         ### Momentum weight update
         self.update_prev = np.zeros((pre_x, pre_y))
@@ -40,6 +40,9 @@ class HystNeuron:
     def cont_current(self, current=0.05):
         self.state += current
 
+    def sig(self, x):
+        return 1 / (1 + np.exp(-150 * (x - self.K)))
+
     def event_input(self, x, y, values):
         for i in range(0, x.__len__()):
             self.state += self.weight_m[int(x[i]), int(y[i])] * values[i]
@@ -50,23 +53,22 @@ class HystNeuron:
 
     def decay_step(self):
         ### State decay function  FIXME Should delta_state or delta_reset be calculated first
-        delta_state = (self.reset * self.eta * self.state * self.g) + ((1 - self.eta) * self.a * self.state)
+        delta_state = (self.reset * self.eta * self.state) + ((1 - self.eta) * self.a * self.state)
         self.state = self.state - delta_state
 
-        ### Step-function threshold implementations
-        # delta_reset = np.heaviside((self.state - self.K), self.K) * self.d - self.b * self.reset
-
         ### Different differentiable threshold implementations
-        # delta_reset = (np.float_power(self.state, self.h) / (np.float_power(self.K, self.h) + np.float_power(self.state, self.h))) * self.d  - self.b * self.reset
-        # delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) * self.d - self.b * self.reset
+        # delta_reset = np.heaviside((self.state - self.K), self.K) * self.d - self.b * self.reset
+        # delta_reset = (np.float_power(self.state, self.h) /
+        # (np.float_power(self.K, self.h) + np.float_power(self.state, self.h))) * self.d - self.b * self.reset
+        # delta_reset = ((self.state**self.h) / (self.K**self.h + self.state**self.h)) * self.d  - self.b * self.reset
         # delta_reset = (0.5 * (1 + np.tanh(self.h * (self.state - self.K)))) * self.d  - self.b * self.reset
-        # delta_reset = (1/(1+np.exp(-(self.state-self.K)*self.h))) * self.d - self.b * self.reset
         delta_reset = 1 / (1 + np.exp(-150 * (self.state - self.K))) * self.d - self.b*self.reset
 
         self.reset = self.reset + delta_reset
         # self.reset = np.clip(self.reset, 0, 1)
 
         return delta_state
+
 
     ### Training functions
     def STDP_weight_update(self, pre_out, post_out):
@@ -77,13 +79,13 @@ class HystNeuron:
         ### Select top x% most eligible pre-syn neurons over whole input
         update_partition = np.rint((self.weight_m.__len__()) * to_update).astype(int)
 
-        ### Correlation-based eligibility trace towards post-syn signal
+        ### Correlation to post-syn output
         elig = []
         for i in range(0, len(self.weight_m)):
-            elig.append(np.array(pre[:, i]) * np.array(post))
+            # elig.append(np.array(pre[:, i]) * np.array(post))
             # elig.append(np.array(pre[:, i]) * np.array(abs(error_trace)))
             # elig.append(np.array(pre[:, i]) * np.array(error_trace))
-            # elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace))
+            elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace))
             # elig.append(np.array(pre[:, i]) * np.array(post) * np.array(error_trace) * self.weight_m[i, 0])
 
         elig_sum = np.sum(elig, axis=1)
@@ -91,25 +93,25 @@ class HystNeuron:
         # print(-elig_sum[0])
 
         ### Update all blame-wise
-        # update_new = []
-        # for i in range(0, len(self.weight_m)):
-        #     update_new.append(-elig_sum[i] * lr)
-
-        ### Update most_elig_syn blame-wise
         update_new = []
         for i in range(0, len(self.weight_m)):
-            if i in most_elig_syn:
+            update_new.append(-elig_sum[i] * lr)
+
+        ### Update most_elig_syn blame-wise
+        # update_new = []
+        # for i in range(0, len(self.weight_m)):
+        #     if i in most_elig_syn:
                 # update_new.append(error * -lr)
                 # update_new.append(-elig_sum[i] * lr)
 
-                if error > 0:
-                    update_new.append(-lr)
-                elif error < 0:
-                    update_new.append(lr)
-                else:
-                    update_new.append(0)
-            else:
-                update_new.append(0)
+                # if error > 0:
+                #     update_new.append(-lr)
+                # elif error < 0:
+                #     update_new.append(lr)
+                # else:
+                #     update_new.append(0)
+            # else:
+            #     update_new.append(0)
 
         update_all = np.expand_dims(np.array(update_new), axis=1) + (self.update_prev * self.momentum)
         self.weight_m = self.weight_m + update_all
@@ -148,3 +150,4 @@ class HystNeuron:
         self.weight_m = self.weight_m + update
         self.update_prev = update
         # self.weight_m = np.clip(self.weight_m, 0, 1)  # IMPORTANT: Clipping breaks the back-prop.
+
